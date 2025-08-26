@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布帖子 - 林麝养殖交流分享平台</title>
+        <link rel="stylesheet" href="css/create-post.css">
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <div class="nav-container">
+            <a href="index.html" class="logo">林麝养殖交流平台</a>
+            <nav class="nav-menu">
+                <a href="index.html">首页</a>
+                <a href="#">经验分享</a>
+                <a href="#">科学养殖</a>
+                <a href="#">饲养饲料</a>
+                <a href="#">疾病控制</a>
+            </nav>
+            <div class="user-actions">
+                <div class="user-info">
+                    <div class="avatar">👤</div>
+                    <span>养殖达人</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容 -->
+    <main class="main-container">
+        <!-- 面包屑导航 -->
+        <div class="breadcrumb">
+            <a href="index.html">首页</a> > 
+            <a href="user-center.html">个人中心</a> > 
+            <span>发布帖子</span>
+        </div>
+
+        <!-- 发布表单 -->
+        <div class="post-form">
+            <h1 class="form-title">发布新帖子</h1>
+            
+            <form id="postForm">
+                <!-- 标题 -->
+                <div class="form-group">
+                    <label for="title">帖子标题 <span class="required">*</span></label>
+                    <input type="text" id="title" name="title" placeholder="请输入帖子标题（5-50字符）" maxlength="50" required>
+                    <div class="char-count"><span id="titleCount">0</span>/50</div>
+                </div>
+
+                <!-- 分类 -->
+                <div class="form-group">
+                    <label for="category">内容分类 <span class="required">*</span></label>
+                    <select id="category" name="category" required>
+                        <option value="">请选择分类</option>
+                        <option value="experience">经验分享</option>
+                        <option value="science">科学养殖</option>
+                        <option value="feed">饲养饲料</option>
+                        <option value="disease">疾病控制</option>
+                    </select>
+                </div>
+
+                <!-- 标签 -->
+                <div class="form-group">
+                    <label for="tags">标签</label>
+                    <div class="tag-input" id="tagInput">
+                        <input type="text" placeholder="输入标签后按回车添加" id="tagInputField">
+                    </div>
+                    <div class="help-text">添加相关标签，便于其他用户找到您的帖子（最多5个标签）</div>
+                </div>
+
+                <!-- 内容编辑器 -->
+                <div class="form-group">
+                    <label for="content">帖子内容 <span class="required">*</span></label>
+                    <div class="editor-toolbar">
+                        <button type="button" class="editor-btn" data-action="bold"><b>B</b></button>
+                        <button type="button" class="editor-btn" data-action="italic"><i>I</i></button>
+                        <button type="button" class="editor-btn" data-action="underline"><u>U</u></button>
+                        <button type="button" class="editor-btn" data-action="link">🔗</button>
+                        <button type="button" class="editor-btn" data-action="list">📝</button>
+                    </div>
+                    <textarea id="content" name="content" class="content-editor" placeholder="请详细描述您的经验、方法或问题..." required></textarea>
+                    <div class="char-count"><span id="contentCount">0</span>/5000</div>
+                </div>
+
+                <!-- 图片上传 -->
+                <div class="form-group">
+                    <label>图片上传</label>
+                    <div class="image-upload" id="imageUpload">
+                        <div class="upload-icon">📷</div>
+                        <p>点击或拖拽图片到此处上传</p>
+                        <p class="help-text">支持 JPG、PNG 格式，单张图片不超过 5MB，最多上传 9 张</p>
+                        <input type="file" id="imageInput" multiple accept="image/*" style="display: none;">
+                    </div>
+                    <div class="image-preview" id="imagePreview"></div>
+                </div>
+
+                <!-- 封面图 -->
+                <div class="form-group">
+                    <label for="cover">封面图</label>
+                    <select id="cover" name="cover">
+                        <option value="">选择封面图（从已上传图片中选择）</option>
+                    </select>
+                    <div class="help-text">封面图将在帖子列表中显示</div>
+                </div>
+
+                <!-- 发布设置 -->
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="allowComment" name="allowComment" checked>
+                        允许评论
+                    </label>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="saveDraft()">保存草稿</button>
+                    <button type="button" class="btn btn-secondary" onclick="preview()">预览</button>
+                    <button type="submit" class="btn btn-primary">发布帖子</button>
+                </div>
+            </form>
+        </div>
+    </main>
+    
+    <!-- 在现有的script标签后添加 -->
+    <script src="js/config.js"></script>
+    <script src="js/error-handler.js"></script>
+    <script src="js/form-validator.js"></script>
+    <script src="js/data-processor.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/create-post.js"></script>
+</body>
+</html>

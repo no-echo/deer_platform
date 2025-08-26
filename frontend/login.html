@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户登录 - 林麝养殖交流分享平台</title>
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>林麝养殖交流平台</h1>
+            <p>专业的林麝养殖知识分享社区</p>
+        </div>
+
+        <form id="loginForm">
+            <!-- 用户名 -->
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" required placeholder="请输入用户名">
+                <div class="error-message"></div>
+            </div>
+
+            <!-- 密码 -->
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" required placeholder="请输入密码">
+                <div class="error-message"></div>
+            </div>
+
+            <!-- 登录选项 -->
+            <div class="form-options">
+                <div class="remember-me">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">记住我</label>
+                </div>
+                <a href="forgot-password.html" class="forgot-password">忘记密码？</a>
+            </div>
+
+            <button type="submit" class="login-btn">登录</button>
+        </form>
+
+        <div class="register-link">
+            还没有账户？<a href="register.html">立即注册</a>
+        </div>
+
+        <div class="guest-access">
+            <a href="index.html" class="guest-btn">游客浏览</a>
+        </div>
+    </div>
+
+    <!-- 引入JavaScript文件 -->
+    <script src="js/config.js"></script>
+    <script src="js/form-validator.js"></script>
+    <script src="js/error-handler.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/login.js"></script>
+</body>
+</html>

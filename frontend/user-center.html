@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心 - 林麝养殖交流分享平台</title>
+        <link rel="stylesheet" href="css/user-center.css">
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <a href="index.html" class="logo">林麝养殖平台</a>
+            <div class="user-info">
+                <span id="welcome-text">欢迎，用户</span>
+                <a href="#" id="logout-btn" style="color: white; margin-left: 1rem;">退出登录</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="user-profile">
+                <div class="user-avatar" id="user-avatar">用</div>
+                <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
+                <div class="user-name" id="user-name">用户</div>
+                <div class="user-title" id="user-title">林麝养殖爱好者</div>
+                <div class="user-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="posts-count">0</div>
+                        <div class="stat-label">发布</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="collections-count">0</div>
+                        <div class="stat-label">收藏</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="follows-count">0</div>
+                        <div class="stat-label">关注</div>
+                    </div>
+                </div>
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#" class="active" onclick="showContent('profile')">个人资料</a></li>
+                    <li><a href="#" onclick="showContent('posts')">我的发布</a></li>
+                    <li><a href="#" onclick="showContent('collections')">我的收藏</a></li>
+                    <li><a href="#" onclick="showContent('vip')">VIP订阅</a></li>
+                    <li><a href="#" onclick="showContent('settings')">账户设置</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="content-area">
+            <!-- 个人资料 -->
+            <div id="profile-content" class="content-section">
+                <div class="content-header">
+                    <h2 class="content-title">个人资料</h2>
+                </div>
+                
+                <form id="profile-form">
+                    <div class="form-group">
+                        <label for="username">用户名</label>
+                        <input type="text" id="username" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="nickname">昵称</label>
+                        <input type="text" id="nickname">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">邮箱</label>
+                        <input type="email" id="email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bio">个人简介</label>
+                        <textarea id="bio" placeholder="介绍一下自己..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="location">所在地区</label>
+                        <input type="text" id="location">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>头像</label>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div class="avatar-preview" id="avatar-preview" style="width: 60px; height: 60px; border-radius: 50%; background: #007bff; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer;" onclick="document.getElementById('avatar-upload').click()">用</div>
+                            <button type="button" onclick="document.getElementById('avatar-upload').click()" class="btn" style="background: #6c757d; color: white;">更换头像</button>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">保存修改</button>
+                </form>
+            </div>
+
+            <!-- 我的发布 -->
+            <div id="posts-content" class="content-section" style="display: none;">
+                <div class="content-header">
+                    <h2 class="content-title">我的发布 (<span id="my-posts-count">0</span>)</h2>
+                    <a href="create-post.html" class="btn btn-primary">发布新帖</a>
+                </div>
+                
+                <div id="my-posts-list" class="post-list">
+                    <!-- 动态加载用户发布的帖子 -->
+                </div>
+                
+                <div id="my-posts-loading" style="text-align: center; padding: 2rem; display: none;">
+                    <p>加载中...</p>
+                </div>
+                
+                <div id="my-posts-empty" style="text-align: center; padding: 2rem; color: #666; display: none;">
+                    <p>您还没有发布任何帖子</p>
+                    <a href="create-post.html" class="btn btn-primary">发布第一篇帖子</a>
+                </div>
+            </div>
+
+            <!-- 我的收藏 -->
+            <div id="collections-content" class="content-section" style="display: none;">
+                <div class="content-header">
+                    <h2 class="content-title">我的收藏 (<span id="my-collections-count">0</span>)</h2>
+                </div>
+                
+                <div id="my-collections-list" class="post-list">
+                    <!-- 动态加载用户收藏的帖子 -->
+                </div>
+                
+                <div id="my-collections-loading" style="text-align: center; padding: 2rem; display: none;">
+                    <p>加载中...</p>
+                </div>
+                
+                <div id="my-collections-empty" style="text-align: center; padding: 2rem; color: #666; display: none;">
+                    <p>您还没有收藏任何帖子</p>
+                    <a href="index.html" class="btn btn-primary">去首页看看</a>
+                </div>
+            </div>
+
+            <!-- VIP订阅 -->
+            <div id="vip-content" class="content-section" style="display: none;">
+                <div class="content-header">
+                    <h2 class="content-title">VIP订阅</h2>
+                </div>
+                
+                <div class="vip-card">
+                    <h3 class="vip-title">🌟 升级VIP会员</h3>
+                    <ul class="vip-benefits">
+                        <li>专属优质内容访问权限</li>
+                        <li>优先客服支持</li>
+                        <li>线下活动优先报名</li>
+                        <li>专家一对一咨询机会</li>
+                        <li>无广告浏览体验</li>
+                    </ul>
+                    <div class="vip-price">¥200/年</div>
+                    <button class="btn btn-vip" onclick="alert('VIP功能开发中，敬请期待！')">立即订阅</button>
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px;">
+                    <h4 id="vip-status">当前状态：普通用户</h4>
+                    <p style="color: #666; margin-top: 0.5rem;">升级VIP享受更多专业服务和优质内容</p>
+                </div>
+            </div>
+
+            <!-- 账户设置 -->
+            <div id="settings-content" class="content-section" style="display: none;">
+                <div class="content-header">
+                    <h2 class="content-title">账户设置</h2>
+                </div>
+                
+                <form id="password-form">
+                    <div class="form-group">
+                        <label for="current-password">当前密码</label>
+                        <input type="password" id="current-password" placeholder="请输入当前密码" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="new-password">新密码</label>
+                        <input type="password" id="new-password" placeholder="请输入新密码" required minlength="6">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm-password">确认新密码</label>
+                        <input type="password" id="confirm-password" placeholder="请再次输入新密码" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">修改密码</button>
+                </form>
+                
+                <hr style="margin: 2rem 0;">
+                
+                <h4 style="color: #dc3545; margin-bottom: 1rem;">危险操作</h4>
+                <p style="color: #666; margin-bottom: 1rem;">注销账户将永久删除您的所有数据，此操作不可恢复。</p>
+                <button class="btn" style="background-color: #dc3545; color: white;" onclick="confirmDeleteAccount()">注销账户</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let currentUser = null;
+        let userPosts = [];
+        let userCollections = [];
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            checkLoginStatus();
+            loadUserProfile();
+            
+            // 绑定事件
+            document.getElementById('logout-btn').addEventListener('click', logout);
+            document.getElementById('profile-form').addEventListener('submit', updateProfile);
+            document.getElementById('password-form').addEventListener('submit', changePassword);
+            document.getElementById('avatar-upload').addEventListener('change', handleAvatarUpload);
+            document.getElementById('user-avatar').addEventListener('click', () => {
+                document.getElementById('avatar-upload').click();
+            });
+        });
+
+        // 检查登录状态
+        function checkLoginStatus() {
+            const token = localStorage.getItem('token');
+            const username = localStorage.getItem('username');
+            
+            if (!token || !username) {
+                alert('请先登录');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            document.getElementById('welcome-text').textContent = `欢迎，${username}`;
+        }
+
+        // 加载用户资料
+        async function loadUserProfile() {
+            try {
+                const response = await userAPI.getProfile();
+                if (response.success) {
+                    currentUser = response.data;
+                    displayUserProfile(currentUser);
+                }
+            } catch (error) {
+                console.error('获取用户信息出错:', error);
+            }
+        }
+
+        // 更新个人资料
+        async function updateProfile(event) {
+            event.preventDefault();
+            const formData = {
+                nickname: document.getElementById('nickname').value,
+                email: document.getElementById('email').value,
+                bio: document.getElementById('bio').value,
+                location: document.getElementById('location').value
+            };
+            
+            const response = await userAPI.updateProfile(formData);
+            if (response.success) {
+                alert('个人资料更新成功！');
+                currentUser = { ...currentUser, ...formData };
+                displayUserProfile(currentUser);
+            } else {
+                alert('更新失败：' + response.message);
+            }
+        }
+
+        // 显示用户资料
+        function displayUserProfile(user) {
+            // 更新侧边栏用户信息
+            document.getElementById('user-name').textContent = user.nickname || user.username;
+            document.getElementById('user-title').textContent = user.bio || '林麝养殖爱好者';
+            
+            // 更新头像
+            const avatarElement = document.getElementById('user-avatar');
+            const avatarPreview = document.getElementById('avatar-preview');
+            if (user.avatar) {
+                avatarElement.style.backgroundImage = `url(${user.avatar})`;
+                avatarElement.style.backgroundSize = 'cover';
+                avatarElement.style.backgroundPosition = 'center';
+                avatarElement.textContent = '';
+                
+                avatarPreview.style.backgroundImage = `url(${user.avatar})`;
+                avatarPreview.style.backgroundSize = 'cover';
+                avatarPreview.style.backgroundPosition = 'center';
+                avatarPreview.textContent = '';
+            } else {
+                const firstChar = (user.nickname || user.username).charAt(0);
+                avatarElement.textContent = firstChar;
+                avatarPreview.textContent = firstChar;
+            }
+            
+            // 更新表单数据
+            document.getElementById('username').value = user.username || '';
+            document.getElementById('nickname').value = user.nickname || '';
+            document.getElementById('email').value = user.email || '';
+            document.getElementById('bio').value = user.bio || '';
+            document.getElementById('location').value = user.location || '';
+            
+            // 更新统计数据（这里需要调用相应的API获取真实数据）
+            updateUserStats();
+        }
+
+        // 更新用户统计数据
+        async function updateUserStats() {
+            try {
+                // 获取用户发布的帖子数量
+                const postsResponse = await postAPI.getUserPosts(currentUser.id, 1, 1);
+                if (postsResponse.success) {
+                    document.getElementById('posts-count').textContent = postsResponse.data.total || 0;
+                    document.getElementById('my-posts-count').textContent = postsResponse.data.total || 0;
+                }
+                
+                // 获取用户收藏数量（这里假设有相应的API）
+                // const collectionsResponse = await userAPI.getCollections(1, 1);
+                // if (collectionsResponse.success) {
+                //     document.getElementById('collections-count').textContent = collectionsResponse.data.total || 0;
+                //     document.getElementById('my-collections-count').textContent = collectionsResponse.data.total || 0;
+                // }
+                
+                // 暂时设置默认值
+                document.getElementById('collections-count').textContent = '0';
+                document.getElementById('my-collections-count').textContent = '0';
+                document.getElementById('follows-count').textContent = '0';
+            } catch (error) {
+                console.error('获取用户统计数据出错:', error);
+            }
+        }
+
+        // 更新个人资料
+        async function updateProfile(event) {
+            event.preventDefault();
+            
+            const formData = {
+                nickname: document.getElementById('nickname').value,
+                email: document.getElementById('email').value,
+                bio: document.getElementById('bio').value,
+                location: document.getElementById('location').value
+            };
+            
+            try {
+                const response = await userAPI.updateProfile(formData);
+                if (response.success) {
+                    alert('个人资料更新成功！');
+                    currentUser = { ...currentUser, ...formData };
+                    displayUserProfile(currentUser);
+                } else {
+                    alert('更新失败：' + response.message);
+                }
+            } catch (error) {
+                console.error('更新个人资料出错:', error);
+                alert('更新失败，请稍后重试');
+            }
+        }
+
+        // 处理头像上传
+        async function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // 文件验证
+            if (!file.type.startsWith('image/')) {
+                alert('请选择图片文件');
+                return;
+            }
+            
+            if (file.size > 2 * 1024 * 1024) {
+                alert('图片大小不能超过2MB');
+                return;
+            }
+            
+            const response = await fileAPI.uploadAvatar(file);
+            if (response.success) {
+                // 更新用户头像
+                const avatarUrl = response.data.url;
+                currentUser.avatar = avatarUrl;
+                
+                // 更新显示
+                const avatarElement = document.getElementById('user-avatar');
+                const avatarPreview = document.getElementById('avatar-preview');
+                
+                avatarElement.style.backgroundImage = `url(${avatarUrl})`;
+                avatarElement.style.backgroundSize = 'cover';
+                avatarElement.style.backgroundPosition = 'center';
+                avatarElement.textContent = '';
+                
+                avatarPreview.style.backgroundImage = `url(${avatarUrl})`;
+                avatarPreview.style.backgroundSize = 'cover';
+                avatarPreview.style.backgroundPosition = 'center';
+                avatarPreview.textContent = '';
+                
+                alert('头像上传成功！');
+            } else {
+                alert('头像上传失败：' + response.message);
+            }
+        }
+
+        // 修改密码
+        async function changePassword(event) {
+            event.preventDefault();
+            
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            
+            if (newPassword !== confirmPassword) {
+                alert('两次输入的新密码不一致');
+                return;
+            }
+            
+            try {
+                const response = await authAPI.changePassword({
+                    oldPassword: currentPassword,
+                    newPassword: newPassword
+                });
+                
+                if (response.success) {
+                    alert('密码修改成功！');
+                    document.getElementById('password-form').reset();
+                } else {
+                    alert('密码修改失败：' + response.message);
+                }
+            } catch (error) {
+                console.error('修改密码出错:', error);
+                alert('密码修改失败，请稍后重试');
+            }
+        }
+
+        // 加载我的发布
+        async function loadMyPosts() {
+            const response = await postAPI.getUserPosts(currentUser.id, 1, 20);
+            if (response.success && response.data.posts.length > 0) {
+                userPosts = response.data.posts;
+                displayMyPosts(userPosts);
+            }
+        }
+        
+        // 删除帖子
+        async function deletePost(postId) {
+            if (!confirm('确定要删除这篇帖子吗？')) return;
+            
+            const response = await postAPI.delete(postId);
+            if (response.success) {
+                loadMyPosts(); // 重新加载列表
+                updateUserStats(); // 更新统计数据
+            }
+        }
+
+        // 显示我的发布
+        function displayMyPosts(posts) {
+            const listElement = document.getElementById('my-posts-list');
+            
+            listElement.innerHTML = posts.map(post => `
+                <div class="post-item">
+                    <div class="post-item-header">
+                        <a href="post-detail.html?id=${post.id}" class="post-item-title">${escapeHtml(post.title)}</a>
+                        <div class="post-item-actions">
+                            <a href="create-post.html?edit=${post.id}" class="action-link">编辑</a>
+                            <a href="#" class="action-link" onclick="deletePost(${post.id})">删除</a>
+                        </div>
+                    </div>
+                    <div class="post-item-meta">
+                        <span>发布时间：${formatDate(post.createdAt)}</span>
+                        <span>分类：${escapeHtml(post.categoryName || '未分类')}</span>
+                        <span>阅读：${post.viewCount || 0}</span>
+                        <span>状态：${getPostStatusText(post.status)}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 加载我的收藏
+        async function loadMyCollections() {
+            // 这里需要实现收藏相关的API调用
+            // 暂时显示空状态
+            document.getElementById('my-collections-empty').style.display = 'block';
+        }
+
+        // 退出登录
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('username');
+                localStorage.removeItem('userId');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // 确认注销账户
+        function confirmDeleteAccount() {
+            if (confirm('警告：此操作将永久删除您的账户和所有数据，且不可恢复。确定要继续吗？')) {
+                if (confirm('请再次确认：您真的要注销账户吗？')) {
+                    alert('账户注销功能开发中，如需注销请联系客服。');
+                }
+            }
+        }
+
+        // 显示内容区域
+        function showContent(section) {
+            // 隐藏所有内容区域
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(s => s.style.display = 'none');
+            
+            // 移除所有导航项的active类
+            const navLinks = document.querySelectorAll('.nav-menu a');
+            navLinks.forEach(link => link.classList.remove('active'));
+            
+            // 显示选中的内容区域
+            document.getElementById(section + '-content').style.display = 'block';
+            
+            // 添加active类到当前导航项
+            event.target.classList.add('active');
+            
+            // 根据选择的内容加载相应数据
+            switch(section) {
+                case 'posts':
+                    loadMyPosts();
+                    break;
+                case 'collections':
+                    loadMyCollections();
+                    break;
+            }
+        }
+
+        // 工具函数
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('zh-CN');
+        }
+
+        function getPostStatusText(status) {
+            const statusMap = {
+                'PUBLISHED': '已发布',
+                'DRAFT': '草稿',
+                'PENDING': '待审核',
+                'REJECTED': '已拒绝'
+            };
+            return statusMap[status] || '未知';
+        }
+    </script>
+</body>
+</html>

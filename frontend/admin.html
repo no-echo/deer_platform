@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理 - 林麝养殖交流分享平台</title>
+        <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">管理后台</div>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="#dashboard" class="active"><span class="icon">📊</span>数据概览</a></li>
+                <li><a href="#posts"><span class="icon">📝</span>内容管理</a></li>
+                <li><a href="#users"><span class="icon">👥</span>用户管理</a></li>
+                <li><a href="#comments"><span class="icon">💬</span>评论管理</a></li>
+                <li><a href="#categories"><span class="icon">📂</span>分类管理</a></li>
+                <li><a href="#reports"><span class="icon">🚨</span>举报处理</a></li>
+                <li><a href="#settings"><span class="icon">⚙️</span>系统设置</a></li>
+                <li><a href="index.html"><span class="icon">🏠</span>返回首页</a></li>
+            </ul>
+        </aside>
+
+        <!-- 主要内容 -->
+        <main class="main-content">
+            <!-- 顶部栏 -->
+            <div class="top-bar">
+                <h1 class="page-title">数据概览</h1>
+                <div class="user-info">
+                    <div class="avatar">管</div>
+                    <span>管理员</span>
+                    <a href="login.html" class="btn btn-primary">退出</a>
+                </div>
+            </div>
+
+            <!-- 内容区域 -->
+            <div class="content-area">
+                <!-- 统计卡片 -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon users">👥</div>
+                        <div class="stat-info">
+                            <h3>1,234</h3>
+                            <p>注册用户</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon posts">📝</div>
+                        <div class="stat-info">
+                            <h3>567</h3>
+                            <p>发布帖子</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon comments">💬</div>
+                        <div class="stat-info">
+                            <h3>2,890</h3>
+                            <p>用户评论</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon revenue">💰</div>
+                        <div class="stat-info">
+                            <h3>¥12,450</h3>
+                            <p>本月收入</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 待审核内容 -->
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">待审核帖子</h2>
+                        <a href="#" class="btn btn-primary">查看全部</a>
+                    </div>
+                    
+                    <div class="search-bar">
+                        <input type="text" class="search-input" placeholder="搜索帖子标题或作者...">
+                        <select class="filter-select">
+                            <option value="">全部分类</option>
+                            <option value="experience">经验分享</option>
+                            <option value="science">科学养殖</option>
+                            <option value="feed">饲养饲料</option>
+                            <option value="disease">疾病控制</option>
+                        </select>
+                        <button class="btn btn-primary">搜索</button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>标题</th>
+                                    <th>作者</th>
+                                    <th>分类</th>
+                                    <th>发布时间</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>林麝幼崽饲养的关键要点</td>
+                                    <td>养殖专家</td>
+                                    <td>经验分享</td>
+                                    <td>2024-01-15 14:30</td>
+                                    <td><span class="status-badge status-pending">待审核</span></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-success">通过</button>
+                                            <button class="btn btn-warning">编辑</button>
+                                            <button class="btn btn-danger">拒绝</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>疾病预防的科学方法</td>
+                                    <td>科研人员</td>
+                                    <td>疾病控制</td>
+                                    <td>2024-01-15 13:45</td>
+                                    <td><span class="status-badge status-pending">待审核</span></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-success">通过</button>
+                                            <button class="btn btn-warning">编辑</button>
+                                            <button class="btn btn-danger">拒绝</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>饲料配方优化建议</td>
+                                    <td>养殖户老王</td>
+                                    <td>饲养饲料</td>
+                                    <td>2024-01-15 12:20</td>
+                                    <td><span class="status-badge status-approved">已通过</span></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-primary">查看</button>
+                                            <button class="btn btn-warning">编辑</button>
+                                            <button class="btn btn-danger">删除</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="pagination">
+                        <button disabled>上一页</button>
+                        <button class="active">1</button>
+                        <button>2</button>
+                        <button>3</button>
+                        <button>下一页</button>
+                    </div>
+                </div>
+
+                <!-- 用户活动 -->
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">最新用户活动</h2>
+                        <a href="#" class="btn btn-primary">查看全部</a>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>用户</th>
+                                    <th>活动类型</th>
+                                    <th>内容</th>
+                                    <th>时间</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>养殖达人</td>
+                                    <td>发布帖子</td>
+                                    <td>林麝养殖环境控制要点</td>
+                                    <td>2024-01-15 15:30</td>
+                                </tr>
+                                <tr>
+                                    <td>新手小白</td>
+                                    <td>发表评论</td>
+                                    <td>对"饲料配方"的评论</td>
+                                    <td>2024-01-15 15:25</td>
+                                </tr>
+                                <tr>
+                                    <td>科研专家</td>
+                                    <td>用户注册</td>
+                                    <td>新用户注册</td>
+                                    <td>2024-01-15 15:20</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>

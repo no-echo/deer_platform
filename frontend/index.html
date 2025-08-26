@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>林麝养殖交流分享平台</title>
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">林麝养殖平台</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#">首页</a></li>
+                    <li><a href="category.html">经验分享</a></li>
+                    <li><a href="category.html">科学养殖</a></li>
+                    <li><a href="category.html">饲养饲料</a></li>
+                    <li><a href="category.html">疾病控制</a></li>
+                </ul>
+            </nav>
+            <div class="search-and-actions">
+                <div class="search-box">
+                    <input type="text" placeholder="搜索养殖知识...">
+                    <button type="submit">搜索</button>
+                </div>
+                <div class="user-actions" id="userActions">
+                    <!-- 未登录时显示 -->
+                    <div id="guestActions">
+                        <a href="login.html" class="btn btn-secondary">登录</a>
+                        <a href="register.html" class="btn btn-primary">注册</a>
+                    </div>
+                    <!-- 登录后显示 -->
+                    <div id="userWelcome" style="display: none;">
+                        <span class="welcome-text" style="color: #ff6b35; font-weight: bold; border: 2px solid #ff6b35; padding: 8px 12px; border-radius: 4px;">欢迎您，<span id="usernameDisplay"></span></span>
+                        <a href="user-center.html" class="btn btn-secondary" style="margin-left: 10px;">个人中心</a>
+                        <button id="logoutBtn" class="btn btn-outline" style="margin-left: 5px;">退出</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="banner">
+        <div class="banner-content">
+            <h1>专业林麝养殖交流平台</h1>
+            <p>汇聚行业专家智慧，分享科学养殖经验，助力林麝产业健康发展</p>
+            <a href="register.html" class="btn btn-primary">立即加入</a>
+        </div>
+    </section>
+
+    <main class="main-content">
+        <div class="section-header">
+            <h2 class="section-title">热门分类</h2>
+            <p class="section-subtitle">探索林麝养殖的各个方面，从基础知识到高级技术，应有尽有</p>
+        </div>
+        
+        <div class="categories">
+            <div class="category-card">
+                <div class="category-header">
+                    <span class="category-icon">💡</span>
+                    <h3 class="category-title">经验分享</h3>
+                </div>
+                <ul class="post-list">
+                    <li class="post-item">
+                        <div class="post-link">
+                            <a href="post-detail.html" class="post-title">林麝幼崽饲养心得分享</a>
+                            <span class="post-meta">2小时前</span>
+                        </div>
+                    </li>
+                    <li class="post-item">
+                        <div class="post-link">
+                            <a href="post-detail.html" class="post-title">我的林麝养殖十年经验总结</a>
+                            <span class="post-meta">5小时前</span>
+                        </div>
+                    </li>
+                    <li class="post-item">
+                        <div class="post-link">
+                            <a href="post-detail.html" class="post-title">从失败到成功的养殖之路</a>
+                            <span class="post-meta">1天前</span>
+                        </div>
+                    </li>
+                    <li class="post-item">
+                        <div class="post-link">
+                            <a href="post-detail.html" class="post-title">林麝繁殖期管理要点</a>
+                            <span class="post-meta">2天前</span>
+                        </div>
+                    </li>
+                </ul>
+                <div class="more-link">
+                    <a href="category.html">查看更多 →</a>
+                </div>
+            </div>
+
+            <div class="category-card">
+                <div class="category-header">
+                    <span class="category-icon">🔬</span>
+                    <h3 class="category-title">科学养殖</h3>
+                </div>
+                <ul class="post-list">
+                    <li class="post-item">
+                        <div class="post-link">
+                            <a href="post-detail.html" class="post-title">林麝标准化养殖技术规程</a>
+                            <span class="post-meta">3小时前</span>
+                        </div>
+                    </li>
+                    <li class="post-item">
+                        <div class="post-link">
+                            <a href="post-detail.html" class="post-title">环境温湿度控制研究报告</a>
+                            <span class="post-meta">6小时前</span>
+                        </div>
+                    </li>
+                    <li class="post-item">
+                        <div class="post-link">
+                            <a href="post-detail.html" class="post-title">林麝行为学观察与分析</a>
+                            <span class="post-meta">1天前</span>
+                        </div>
+                    </li>
+                    <li class="post-item">
+                        <div class="post-link">
+                            <a href="post-detail.html" class="post-title">最新养殖政策解读</a>
+                            <span class="post-meta">3天前</span>
+                        </div>
+                    </li>
+                </ul>
+                <div class="more-link">
+                    <a href="category.html">查看更多 →</a>
+                </div>
+            </div>
+
+            <div class="category-card">
+                <div class="category-header">
+                    <span class="category-icon">🌾</span>
+                    <h3 class="category-title">饲养饲料</h3>
+                </div>
+                <ul class="post-list">
+                    <li class="post-item">
+                        <div class="post-link">
+                            <a href="post-detail.html" class="post-title">林麝专用饲料配方推荐</a>
+                            <span class="post-meta">1小时前</span>
+                        </div>
+                    </li>
+                    <li class="post-item">
+                        <div class="post-link">
+                            <a href="post-detail.html" class="post-title">营养需求分析与搭配</a>
+                            <span class="post-meta">4小时前</span>
+                        </div>
+                    </li>
+                    <li class="post-item">
+                        <div class="post-link">
+                            <a href="post-detail.html" class="post-title">饲料成本控制方案</a>
+                            <span class="post-meta">1天前</span>
+                        </div>
+                    </li>
+                    <li class="post-item">
+                        <div class="post-link">
+                            <a href="post-detail.html" class="post-title">季节性饲料调整策略</a>
+                            <span class="post-meta">2天前</span>
+                        </div>
+                    </li>
+                </ul>
+                <div class="more-link">
+                    <a href="category.html">查看更多 →</a>
+                </div>
+            </div>
+
+            <div class="category-card">
+                <div class="category-header">
+                    <span class="category-icon">🏥</span>
+                    <h3 class="category-title">疾病控制</h3>
+                </div>
+                <ul class="post-list">
+                    <li class="post-item">
+                        <div class="post-link">
+                            <a href="post-detail.html" class="post-title">常见疾病预防指南</a>
+                            <span class="post-meta">30分钟前</span>
+                        </div>
+                    </li>
+                    <li class="post-item">
+                        <div class="post-link">
+                            <a href="post-detail.html" class="post-title">林麝消化系统疾病诊治</a>
+                            <span class="post-meta">3小时前</span>
+                        </div>
+                    </li>
+                    <li class="post-item">
+                        <div class="post-link">
+                            <a href="post-detail.html" class="post-title">疫苗接种时间表</a>
+                            <span class="post-meta">8小时前</span>
+                        </div>
+                    </li>
+                    <li class="post-item">
+                        <div class="post-link">
+                            <a href="post-detail.html" class="post-title">应急处理方案分享</a>
+                            <span class="post-meta">1天前</span>
+                        </div>
+                    </li>
+                </ul>
+                <div class="more-link">
+                    <a href="category.html">查看更多 →</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#">关于我们</a>
+                <a href="#">联系方式</a>
+                <a href="#">隐私政策</a>
+                <a href="#">服务条款</a>
+            </div>
+            <p>&copy; 2024 林麝养殖交流分享平台. 保留所有权利.</p>
+        </div>
+    </footer>
+    
+    <!-- 引入API配置和服务 -->
+    <script src="js/config.js"></script>
+    <script src="js/error-handler.js"></script>
+    <script src="js/form-validator.js"></script>
+    <script src="js/data-processor.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/index.js"></script>
+</body>
+</html>

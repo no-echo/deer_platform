@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户注册 - 林麝养殖交流分享平台</title>
+    <link rel="stylesheet" href="css/register.css">
+</head>
+<body>
+    <div class="register-container">
+        <div class="logo">
+            <h1>林麝养殖交流平台</h1>
+            <p>专业的林麝养殖知识分享社区</p>
+        </div>
+
+        <form id="registerForm">
+            <!-- 头像上传 (可选) -->
+            <div class="avatar-upload">
+                <div class="avatar-preview" onclick="document.getElementById('avatar-input').click()">
+                    <span>点击上传头像</span>
+                </div>
+                <input type="file" id="avatar-input" accept="image/*">
+                <div class="upload-text">可选，支持JPG、PNG格式</div>
+            </div>
+
+            <!-- 邮箱地址 (必填) -->
+            <div class="form-group">
+                <label for="email">邮箱地址 <span class="required">*</span></label>
+                <input type="email" id="email" name="email" required placeholder="请输入邮箱地址">
+                <div class="error-message"></div>
+            </div>
+
+            <!-- 邮箱验证码 (必填) -->
+            <div class="form-group">
+                <label for="verification-code">邮箱验证码 <span class="required">*</span></label>
+                <div class="verification-group">
+                    <input type="text" id="verification-code" name="verificationCode" required placeholder="请输入验证码">
+                    <button type="button" class="send-code-btn" id="sendCodeBtn">发送验证码</button>
+                </div>
+                <div class="error-message"></div>
+            </div>
+
+            <!-- 用户名 (必填) -->
+            <div class="form-group">
+                <label for="username">用户名 <span class="required">*</span></label>
+                <input type="text" id="username" name="username" required placeholder="请输入用户名">
+                <div class="error-message"></div>
+            </div>
+
+            <!-- 昵称 (可选) -->
+            <div class="form-group">
+                <label for="nickname">昵称</label>
+                <input type="text" id="nickname" name="nickname" placeholder="请输入昵称（可选）">
+                <div class="error-message"></div>
+            </div>
+
+            <!-- 密码 (必填) -->
+            <div class="form-group">
+                <label for="password">密码 <span class="required">*</span></label>
+                <input type="password" id="password" name="password" required placeholder="请输入密码">
+                <div class="error-message"></div>
+            </div>
+
+            <!-- 确认密码 (必填) -->
+            <div class="form-group">
+                <label for="confirm-password">确认密码 <span class="required">*</span></label>
+                <input type="password" id="confirm-password" name="confirmPassword" required placeholder="请再次输入密码">
+                <div class="error-message"></div>
+            </div>
+
+            <!-- 个人简介 (可选) -->
+            <div class="form-group">
+                <label for="bio">个人简介</label>
+                <textarea id="bio" name="bio" placeholder="简单介绍一下自己（可选）"></textarea>
+                <div class="error-message"></div>
+            </div>
+
+            <button type="submit" class="register-btn">注册账户</button>
+        </form>
+
+        <div class="login-link">
+            已有账户？<a href="login.html">立即登录</a>
+        </div>
+    </div>
+    
+    <!-- 在页面底部按依赖顺序加载所有JavaScript文件 -->
+    <script src="js/config.js"></script>
+    <script src="js/error-handler.js"></script>
+    <script src="js/form-validator.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/register.js"></script>
+</body>
+</html>

@@ -1,0 +1,468 @@
+// API请求工具类
+class ApiClient {
+    constructor() {
+        this.baseURL = API_BASE_URL;
+        this.token = localStorage.getItem('token');
+    }
+    
+    async request(endpoint, options = {}) {
+        try {
+            const url = `${this.baseURL}${endpoint}`;
+            console.log('API请求URL:', url); // 调试日志
+            
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                },
+                ...options
+            };
+            
+            // 添加认证token
+            const token = localStorage.getItem('token');
+            if (token) {
+                config.headers['Authorization'] = `Bearer ${token}`;
+            }
+            
+            const response = await fetch(url, config);
+            
+            // 检查响应类型
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                console.error('服务器返回非JSON响应:', text);
+                throw new Error('服务器响应格式错误，请检查后端服务是否正常运行');
+            }
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.message || `HTTP error! status: ${response.status}`);
+            }
+            
+            return data;
+        } catch (error) {
+            console.error('API请求失败:', error);
+            if (errorHandler) {
+                errorHandler.handleApiError(error);
+            }
+            throw error;
+        }
+    }
+    
+    // 文件上传请求
+    async uploadFile(endpoint, formData) {
+        const url = this.baseURL + endpoint;
+        const config = {
+            method: 'POST',
+            headers: {},
+            body: formData
+        };
+        
+        if (this.token) {
+            config.headers['Authorization'] = `Bearer ${this.token}`;
+        }
+        
+        try {
+            const response = await fetch(url, config);
+            
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                const error = new Error(errorData.message || `上传失败: HTTP ${response.status}`);
+                error.status = response.status;
+                throw error;
+            }
+            
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            if (window.errorHandler) {
+                window.errorHandler.handleApiError(error, `文件上传 ${endpoint}`);
+            } else {
+                console.error('文件上传错误:', error);
+            }
+            throw error;
+        }
+    }
+    
+    // GET请求
+    async get(endpoint) {
+        return this.request(endpoint, { method: 'GET' });
+    }
+    
+    // POST请求
+    async post(endpoint, data) {
+        return this.request(endpoint, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
+    
+    // PUT请求
+    async put(endpoint, data) {
+        return this.request(endpoint, {
+            method: 'PUT',
+            body: JSON.stringify(data)
+        });
+    }
+    
+    // DELETE请求
+    async delete(endpoint) {
+        return this.request(endpoint, { method: 'DELETE' });
+    }
+    
+    // 更新token
+    updateToken(token) {
+        this.token = token;
+        if (token) {
+            localStorage.setItem('token', token);
+        } else {
+            localStorage.removeItem('token');
+        }
+    }
+}
+
+// 创建全局API客户端实例
+const apiClient = new ApiClient();
+
+// 认证相关API
+const authAPI = {
+    // 用户登录
+    login: async (username, password) => {
+        const response = await apiClient.post('/api/auth/login', { username, password });
+        if (response.success && response.data.token) {
+            apiClient.updateToken(response.data.token);
+            // 保存用户信息
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('username', response.data.user.username);
+            localStorage.setItem('nickname', response.data.user.nickname || response.data.user.username);
+            localStorage.setItem('userRole', response.data.user.role);
+        }
+        return response;
+    },
+    
+    // 用户注册
+    register: async (userData) => {
+        return await apiClient.post('/api/auth/register', userData);
+    },
+    
+    // 邮箱注册
+    registerWithEmail: async (email, password, confirmPassword, verificationCode, nickname) => {
+        const params = new URLSearchParams({
+            email,
+            password,
+            confirmPassword,
+            verificationCode
+        });
+        if (nickname) {
+            params.append('nickname', nickname);
+        }
+        
+        return await apiClient.request('/api/auth/register-with-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params
+        });
+    },
+    
+    // 发送注册验证码
+    sendVerificationCode: async (email) => {
+        const params = new URLSearchParams({ email });
+        return await apiClient.request('/api/auth/send-verification-code', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params
+        });
+    },
+    
+    // 发送密码重置验证码
+    sendPasswordResetCode: async (email) => {
+        const params = new URLSearchParams({ email });
+        return await apiClient.request('/api/auth/send-reset-code', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params
+        });
+    },
+    
+    // 重置密码
+    resetPassword: async (data) => {
+        const params = new URLSearchParams({
+            email: data.email,
+            newPassword: data.newPassword,
+            confirmPassword: data.confirmPassword,
+            verificationCode: data.verificationCode
+        });
+        return await apiClient.request('/api/auth/reset-password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params
+        });
+    },
+    
+    // 用户退出
+    logout: async () => {
+        try {
+            await apiClient.post('/api/auth/logout');
+        } finally {
+            // 清除本地存储
+            apiClient.updateToken(null);
+            localStorage.removeItem('user');
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('username');
+            localStorage.removeItem('nickname');
+            localStorage.removeItem('userRole');
+        }
+    },
+    
+    // 获取当前用户信息
+    getCurrentUser: async () => {
+        return await apiClient.get('/api/auth/me');
+    }
+};
+
+// 帖子相关API
+const postAPI = {
+    // 创建帖子
+    create: async (postData) => {
+        return await apiClient.post('/api/posts', postData);
+    },
+    
+    // 获取帖子列表
+    getList: async (params = {}) => {
+        const queryParams = new URLSearchParams();
+        if (params.categoryId) queryParams.append('categoryId', params.categoryId);
+        if (params.sortBy) queryParams.append('sortBy', params.sortBy);
+        if (params.page !== undefined) queryParams.append('page', params.page);
+        if (params.size !== undefined) queryParams.append('size', params.size);
+        
+        const queryString = queryParams.toString();
+        return await apiClient.get(`/api/posts${queryString ? '?' + queryString : ''}`);
+    },
+    
+    // 获取帖子详情
+    getById: async (id) => {
+        return await apiClient.get(`/api/posts/${id}`);
+    },
+    
+    // 更新帖子
+    update: async (id, postData) => {
+        return await apiClient.put(`/api/posts/${id}`, postData);
+    },
+    
+    // 删除帖子
+    delete: async (id) => {
+        return await apiClient.delete(`/api/posts/${id}`);
+    },
+    
+    // 搜索帖子
+    search: async (keyword, page = 0, size = 10) => {
+        const params = new URLSearchParams({ keyword, page, size });
+        return await apiClient.get(`/api/posts/search?${params}`);
+    },
+    
+    // 获取热门帖子
+    getPopular: async (page = 0, size = 10) => {
+        const params = new URLSearchParams({ page, size });
+        return await apiClient.get(`/api/posts/popular?${params}`);
+    },
+    
+    // 获取我的帖子
+    getMy: async (page = 0, size = 10) => {
+        const params = new URLSearchParams({ page, size });
+        return await apiClient.get(`/api/posts/my?${params}`);
+    }
+};
+
+// 分类相关API
+const categoryAPI = {
+    // 获取所有激活分类
+    getAll: async () => {
+        return await apiClient.get('/api/categories');
+    },
+    
+    // 获取分类详情
+    getById: async (id) => {
+        return await apiClient.get(`/api/categories/${id}`);
+    },
+    
+    // 创建分类（管理员）
+    create: async (name, description, icon) => {
+        const params = new URLSearchParams({ name });
+        if (description) params.append('description', description);
+        if (icon) params.append('icon', icon);
+        
+        return await apiClient.request('/api/categories', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params
+        });
+    },
+    
+    // 更新分类（管理员）
+    update: async (id, name, description, icon) => {
+        const params = new URLSearchParams({ name });
+        if (description) params.append('description', description);
+        if (icon) params.append('icon', icon);
+        
+        return await apiClient.request(`/api/categories/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params
+        });
+    },
+    
+    // 删除分类（管理员）
+    delete: async (id) => {
+        return await apiClient.delete(`/api/categories/${id}`);
+    },
+    
+    // 获取管理员分类列表
+    getAdminList: async (status = 'ACTIVE', page = 0, size = 10) => {
+        const params = new URLSearchParams({ status, page, size });
+        return await apiClient.get(`/api/categories/admin?${params}`);
+    },
+    
+    // 更新分类排序
+    updateSort: async (id, sortOrder) => {
+        const params = new URLSearchParams({ sortOrder });
+        return await apiClient.request(`/api/categories/${id}/sort`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params
+        });
+    },
+    
+    // 获取分类统计
+    getStats: async () => {
+        return await apiClient.get('/api/categories/stats');
+    }
+};
+
+// 文件上传相关API
+const fileAPI = {
+    // 上传头像
+    uploadAvatar: async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        return await apiClient.uploadFile('/api/files/avatar', formData);
+    },
+    
+    // 上传帖子图片
+    uploadPostImage: async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        return await apiClient.uploadFile('/api/files/post-image', formData);
+    },
+    
+    // 批量上传帖子图片
+    uploadPostImages: async (files) => {
+        const formData = new FormData();
+        for (let i = 0; i < files.length; i++) {
+            formData.append('files', files[i]);
+        }
+        return await apiClient.uploadFile('/api/files/post-images', formData);
+    },
+    
+    // 删除文件
+    delete: async (filePath) => {
+        const params = new URLSearchParams({ path: filePath });
+        return await apiClient.delete(`/api/files?${params}`);
+    }
+};
+
+// 管理员相关API
+const adminAPI = {
+    // 获取仪表板统计数据
+    getDashboardStats: async () => {
+        return await apiClient.get('/api/admin/dashboard/stats');
+    },
+    
+    // 获取用户列表
+    getUsers: async (params = {}) => {
+        const queryParams = new URLSearchParams();
+        if (params.page !== undefined) queryParams.append('page', params.page);
+        if (params.size !== undefined) queryParams.append('size', params.size);
+        if (params.status) queryParams.append('status', params.status);
+        if (params.keyword) queryParams.append('keyword', params.keyword);
+        
+        const queryString = queryParams.toString();
+        return await apiClient.get(`/api/admin/users${queryString ? '?' + queryString : ''}`);
+    },
+    
+    // 更新用户状态
+    updateUserStatus: async (userId, status) => {
+        const params = new URLSearchParams({ status });
+        return await apiClient.request(`/api/admin/users/${userId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params
+        });
+    },
+    
+    // 获取帖子列表
+    getPosts: async (params = {}) => {
+        const queryParams = new URLSearchParams();
+        if (params.page !== undefined) queryParams.append('page', params.page);
+        if (params.size !== undefined) queryParams.append('size', params.size);
+        if (params.status) queryParams.append('status', params.status);
+        if (params.keyword) queryParams.append('keyword', params.keyword);
+        if (params.categoryId) queryParams.append('categoryId', params.categoryId);
+        
+        const queryString = queryParams.toString();
+        return await apiClient.get(`/api/admin/posts${queryString ? '?' + queryString : ''}`);
+    },
+    
+    // 更新帖子状态
+    updatePostStatus: async (postId, status) => {
+        const params = new URLSearchParams({ status });
+        return await apiClient.request(`/api/admin/posts/${postId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params
+        });
+    },
+    
+    // 删除帖子
+    deletePost: async (postId) => {
+        return await apiClient.delete(`/api/admin/posts/${postId}`);
+    },
+    
+    // 获取最新活动
+    getRecentActivities: async (page = 0, size = 10) => {
+        const params = new URLSearchParams({ page, size });
+        return await apiClient.get(`/api/admin/activities/recent?${params}`);
+    },
+    
+    // 获取系统概览
+    getOverview: async () => {
+        return await apiClient.get('/api/admin/overview');
+    }
+};
+
+// 导出API对象
+window.authAPI = authAPI;
+window.postAPI = postAPI;
+window.categoryAPI = categoryAPI;
+window.fileAPI = fileAPI;
+window.adminAPI = adminAPI;
+window.apiClient = apiClient;
