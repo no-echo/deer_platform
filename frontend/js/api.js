@@ -129,7 +129,7 @@ const apiClient = new ApiClient();
 const authAPI = {
     // 用户登录
     login: async (username, password) => {
-        const response = await apiClient.post('/api/auth/login', { username, password });
+        const response = await apiClient.post(API_ENDPOINTS.LOGIN, { username, password });
         if (response.success && response.data.token) {
             apiClient.updateToken(response.data.token);
             // 保存用户信息
@@ -144,34 +144,21 @@ const authAPI = {
     
     // 用户注册
     register: async (userData) => {
-        return await apiClient.post('/api/auth/register', userData);
+        return await apiClient.post(API_ENDPOINTS.REGISTER, userData);
     },
     
     // 邮箱注册
-    registerWithEmail: async (email, password, confirmPassword, verificationCode, nickname) => {
-        const params = new URLSearchParams({
-            email,
-            password,
-            confirmPassword,
-            verificationCode
-        });
-        if (nickname) {
-            params.append('nickname', nickname);
-        }
-        
-        return await apiClient.request('/api/auth/register-with-email', {
+    registerWithEmail: async (userData) => {
+        return await apiClient.request(API_ENDPOINTS.REGISTER_WITH_EMAIL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: params
+            body: JSON.stringify(userData)
         });
     },
     
     // 发送注册验证码
     sendVerificationCode: async (email) => {
         const params = new URLSearchParams({ email });
-        return await apiClient.request('/api/auth/send-verification-code', {
+        return await apiClient.request(API_ENDPOINTS.SEND_VERIFICATION_CODE, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -183,7 +170,7 @@ const authAPI = {
     // 发送密码重置验证码
     sendPasswordResetCode: async (email) => {
         const params = new URLSearchParams({ email });
-        return await apiClient.request('/api/auth/send-reset-code', {
+        return await apiClient.request('/auth/send-reset-code', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -200,7 +187,7 @@ const authAPI = {
             confirmPassword: data.confirmPassword,
             verificationCode: data.verificationCode
         });
-        return await apiClient.request('/api/auth/reset-password', {
+        return await apiClient.request('/auth/reset-password', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -212,7 +199,7 @@ const authAPI = {
     // 用户退出
     logout: async () => {
         try {
-            await apiClient.post('/api/auth/logout');
+            await apiClient.post(API_ENDPOINTS.LOGOUT);
         } finally {
             // 清除本地存储
             apiClient.updateToken(null);
@@ -226,7 +213,7 @@ const authAPI = {
     
     // 获取当前用户信息
     getCurrentUser: async () => {
-        return await apiClient.get('/api/auth/me');
+        return await apiClient.get(API_ENDPOINTS.CURRENT_USER);
     }
 };
 
@@ -234,7 +221,7 @@ const authAPI = {
 const postAPI = {
     // 创建帖子
     create: async (postData) => {
-        return await apiClient.post('/api/posts', postData);
+        return await apiClient.post(API_ENDPOINTS.POSTS, postData);
     },
     
     // 获取帖子列表
@@ -246,40 +233,40 @@ const postAPI = {
         if (params.size !== undefined) queryParams.append('size', params.size);
         
         const queryString = queryParams.toString();
-        return await apiClient.get(`/api/posts${queryString ? '?' + queryString : ''}`);
+        return await apiClient.get(`${API_ENDPOINTS.POSTS}${queryString ? '?' + queryString : ''}`);
     },
     
     // 获取帖子详情
     getById: async (id) => {
-        return await apiClient.get(`/api/posts/${id}`);
+        return await apiClient.get(`${API_ENDPOINTS.POST_DETAIL}/${id}`);
     },
     
     // 更新帖子
     update: async (id, postData) => {
-        return await apiClient.put(`/api/posts/${id}`, postData);
+        return await apiClient.put(`${API_ENDPOINTS.POSTS}/${id}`, postData);
     },
     
     // 删除帖子
     delete: async (id) => {
-        return await apiClient.delete(`/api/posts/${id}`);
+        return await apiClient.delete(`${API_ENDPOINTS.POSTS}/${id}`);
     },
     
     // 搜索帖子
     search: async (keyword, page = 0, size = 10) => {
         const params = new URLSearchParams({ keyword, page, size });
-        return await apiClient.get(`/api/posts/search?${params}`);
+        return await apiClient.get(`${API_ENDPOINTS.POST_SEARCH}?${params}`);
     },
     
     // 获取热门帖子
     getPopular: async (page = 0, size = 10) => {
         const params = new URLSearchParams({ page, size });
-        return await apiClient.get(`/api/posts/popular?${params}`);
+        return await apiClient.get(`${API_ENDPOINTS.POST_POPULAR}?${params}`);
     },
     
     // 获取我的帖子
     getMy: async (page = 0, size = 10) => {
         const params = new URLSearchParams({ page, size });
-        return await apiClient.get(`/api/posts/my?${params}`);
+        return await apiClient.get(`${API_ENDPOINTS.POST_MY}?${params}`);
     }
 };
 
@@ -287,12 +274,12 @@ const postAPI = {
 const categoryAPI = {
     // 获取所有激活分类
     getAll: async () => {
-        return await apiClient.get('/api/categories');
+        return await apiClient.get(API_ENDPOINTS.CATEGORIES);
     },
     
     // 获取分类详情
     getById: async (id) => {
-        return await apiClient.get(`/api/categories/${id}`);
+        return await apiClient.get(`${API_ENDPOINTS.CATEGORIES}/${id}`);
     },
     
     // 创建分类（管理员）
@@ -301,7 +288,7 @@ const categoryAPI = {
         if (description) params.append('description', description);
         if (icon) params.append('icon', icon);
         
-        return await apiClient.request('/api/categories', {
+        return await apiClient.request(API_ENDPOINTS.CATEGORIES, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -316,7 +303,7 @@ const categoryAPI = {
         if (description) params.append('description', description);
         if (icon) params.append('icon', icon);
         
-        return await apiClient.request(`/api/categories/${id}`, {
+        return await apiClient.request(`${API_ENDPOINTS.CATEGORIES}/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -327,19 +314,19 @@ const categoryAPI = {
     
     // 删除分类（管理员）
     delete: async (id) => {
-        return await apiClient.delete(`/api/categories/${id}`);
+        return await apiClient.delete(`${API_ENDPOINTS.CATEGORIES}/${id}`);
     },
     
     // 获取管理员分类列表
     getAdminList: async (status = 'ACTIVE', page = 0, size = 10) => {
         const params = new URLSearchParams({ status, page, size });
-        return await apiClient.get(`/api/categories/admin?${params}`);
+        return await apiClient.get(`${API_ENDPOINTS.CATEGORIES_ADMIN}?${params}`);
     },
     
     // 更新分类排序
     updateSort: async (id, sortOrder) => {
         const params = new URLSearchParams({ sortOrder });
-        return await apiClient.request(`/api/categories/${id}/sort`, {
+        return await apiClient.request(`${API_ENDPOINTS.CATEGORIES}/${id}/sort`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -350,7 +337,7 @@ const categoryAPI = {
     
     // 获取分类统计
     getStats: async () => {
-        return await apiClient.get('/api/categories/stats');
+        return await apiClient.get(API_ENDPOINTS.CATEGORIES_STATS);
     }
 };
 
@@ -360,14 +347,14 @@ const fileAPI = {
     uploadAvatar: async (file) => {
         const formData = new FormData();
         formData.append('file', file);
-        return await apiClient.uploadFile('/api/files/avatar', formData);
+        return await apiClient.uploadFile(API_ENDPOINTS.UPLOAD_AVATAR, formData);
     },
     
     // 上传帖子图片
     uploadPostImage: async (file) => {
         const formData = new FormData();
         formData.append('file', file);
-        return await apiClient.uploadFile('/api/files/post-image', formData);
+        return await apiClient.uploadFile(API_ENDPOINTS.UPLOAD_POST_IMAGE, formData);
     },
     
     // 批量上传帖子图片
@@ -376,13 +363,13 @@ const fileAPI = {
         for (let i = 0; i < files.length; i++) {
             formData.append('files', files[i]);
         }
-        return await apiClient.uploadFile('/api/files/post-images', formData);
+        return await apiClient.uploadFile(API_ENDPOINTS.UPLOAD_POST_IMAGES, formData);
     },
     
     // 删除文件
     delete: async (filePath) => {
         const params = new URLSearchParams({ path: filePath });
-        return await apiClient.delete(`/api/files?${params}`);
+        return await apiClient.delete(`${API_ENDPOINTS.DELETE_FILE}?${params}`);
     }
 };
 
@@ -390,7 +377,7 @@ const fileAPI = {
 const adminAPI = {
     // 获取仪表板统计数据
     getDashboardStats: async () => {
-        return await apiClient.get('/api/admin/dashboard/stats');
+        return await apiClient.get(API_ENDPOINTS.ADMIN_DASHBOARD_STATS);
     },
     
     // 获取用户列表
@@ -402,13 +389,13 @@ const adminAPI = {
         if (params.keyword) queryParams.append('keyword', params.keyword);
         
         const queryString = queryParams.toString();
-        return await apiClient.get(`/api/admin/users${queryString ? '?' + queryString : ''}`);
+        return await apiClient.get(`${API_ENDPOINTS.ADMIN_USERS}${queryString ? '?' + queryString : ''}`);
     },
     
     // 更新用户状态
     updateUserStatus: async (userId, status) => {
         const params = new URLSearchParams({ status });
-        return await apiClient.request(`/api/admin/users/${userId}/status`, {
+        return await apiClient.request(`${API_ENDPOINTS.ADMIN_USERS}/${userId}/status`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -427,13 +414,13 @@ const adminAPI = {
         if (params.categoryId) queryParams.append('categoryId', params.categoryId);
         
         const queryString = queryParams.toString();
-        return await apiClient.get(`/api/admin/posts${queryString ? '?' + queryString : ''}`);
+        return await apiClient.get(`${API_ENDPOINTS.ADMIN_POSTS}${queryString ? '?' + queryString : ''}`);
     },
     
     // 更新帖子状态
     updatePostStatus: async (postId, status) => {
         const params = new URLSearchParams({ status });
-        return await apiClient.request(`/api/admin/posts/${postId}/status`, {
+        return await apiClient.request(`${API_ENDPOINTS.ADMIN_POSTS}/${postId}/status`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -444,18 +431,18 @@ const adminAPI = {
     
     // 删除帖子
     deletePost: async (postId) => {
-        return await apiClient.delete(`/api/admin/posts/${postId}`);
+        return await apiClient.delete(`${API_ENDPOINTS.ADMIN_POSTS}/${postId}`);
     },
     
     // 获取最新活动
     getRecentActivities: async (page = 0, size = 10) => {
         const params = new URLSearchParams({ page, size });
-        return await apiClient.get(`/api/admin/activities/recent?${params}`);
+        return await apiClient.get(`${API_ENDPOINTS.ADMIN_ACTIVITIES}?${params}`);
     },
     
     // 获取系统概览
     getOverview: async () => {
-        return await apiClient.get('/api/admin/overview');
+        return await apiClient.get(API_ENDPOINTS.ADMIN_OVERVIEW);
     }
 };
 

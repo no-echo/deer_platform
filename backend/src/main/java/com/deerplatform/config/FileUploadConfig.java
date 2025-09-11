@@ -40,10 +40,5 @@ public class FileUploadConfig implements WebMvcConfigurer {
         // 配置上传文件访问路径
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:" + uploadPath);
-        
-        // 配置前端静态资源访问路径 - 修正路径
-        registry.addResourceHandler("/**")
-                .addResourceLocations("file:../frontend/")
-                .setCachePeriod(0); // 开发环境不缓存
     }
 }

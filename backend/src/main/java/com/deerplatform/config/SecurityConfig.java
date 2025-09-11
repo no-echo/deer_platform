@@ -67,17 +67,19 @@ public class SecurityConfig {
             
             // 配置授权规则 - 使用Lambda DSL和antMatchers (Spring Security 5.7.x)
             .authorizeHttpRequests(authz -> authz
-                // 公开接口
-                .antMatchers("/api/auth/login", "/api/auth/register").permitAll()
-                .antMatchers("/api/categories", "/api/categories/**").permitAll()
-                .antMatchers("/api/posts", "/api/posts/**").permitAll()
+                // 静态资源 - 优先配置，允许所有静态资源访问
+                .antMatchers("/", "/*.html").permitAll()
+                .antMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                .antMatchers("/favicon.ico").permitAll()
                 .antMatchers("/uploads/**").permitAll()
                 .antMatchers("/error").permitAll()
                 
-                // 静态资源 - 添加这些配置
-                .antMatchers("/*.html").permitAll()
-                .antMatchers("/css/**", "/js/**", "/images/**").permitAll()
-                .antMatchers("/favicon.ico").permitAll()
+                // 公开API接口
+                .antMatchers("/api/auth/login", "/api/auth/register").permitAll()
+                .antMatchers("/api/categories", "/api/categories/**").permitAll()
+                .antMatchers("/api/posts", "/api/posts/**").permitAll()
+                .antMatchers("/api/auth/send-verification-code", "/api/auth/register-with-email").permitAll()
+                .antMatchers("/api/auth/send-reset-code", "/api/auth/reset-password").permitAll()
                 
                 // Swagger文档
                 .antMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
@@ -86,8 +88,6 @@ public class SecurityConfig {
                 .antMatchers("/api/auth/me", "/api/auth/profile").authenticated()
                 .antMatchers("/api/posts/create", "/api/posts/*/edit").authenticated()
                 .antMatchers("/api/comments/**").authenticated()
-                .antMatchers("/api/auth/send-verification-code", "/api/auth/register-with-email").permitAll()
-                .antMatchers("/api/auth/send-reset-code", "/api/auth/reset-password").permitAll()
                 
                 // 管理员接口
                 .antMatchers("/api/admin/**").hasRole("ADMIN")

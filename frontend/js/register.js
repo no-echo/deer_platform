@@ -32,7 +32,7 @@ function initializeRegisterForm() {
             pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
             message: '请输入有效的邮箱地址'
         },
-        verificationCode: {
+        'verification-code': {
             required: true,
             length: 6,
             pattern: /^\d{6}$/,
@@ -44,7 +44,7 @@ function initializeRegisterForm() {
             maxLength: 20,
             message: '密码6-20个字符'
         },
-        confirmPassword: {
+        'confirm-password': {
             required: true,
             custom: function(value) {
                 const password = document.getElementById('password').value;
@@ -174,13 +174,26 @@ async function handleRegister(event) {
     event.preventDefault();
     
     // 获取表单数据
+    const usernameEl = document.getElementById('username');
+    const nicknameEl = document.getElementById('nickname');
+    const emailEl = document.getElementById('email');
+    const verificationCodeEl = document.getElementById('verification-code');
+    const passwordEl = document.getElementById('password');
+    const confirmPasswordEl = document.getElementById('confirm-password');
+    
+    // 检查必需元素是否存在
+    if (!usernameEl || !emailEl || !verificationCodeEl || !passwordEl || !confirmPasswordEl) {
+        errorHandler.showError('表单元素加载失败，请刷新页面重试');
+        return;
+    }
+    
     const formData = {
-        username: document.getElementById('username').value.trim(),
-        nickname: document.getElementById('nickname').value.trim(),
-        email: document.getElementById('email').value.trim(),
-        verificationCode: document.getElementById('verificationCode').value.trim(),
-        password: document.getElementById('password').value,
-        confirmPassword: document.getElementById('confirmPassword').value
+        username: usernameEl.value.trim(),
+        nickname: nicknameEl ? nicknameEl.value.trim() : '',
+        email: emailEl.value.trim(),
+        verificationCode: verificationCodeEl.value.trim(),
+        password: passwordEl.value,
+        confirmPassword: confirmPasswordEl.value
     };
     
     // 确认密码验证
@@ -202,7 +215,7 @@ async function handleRegister(event) {
         submitBtn.disabled = true;
         
         // 清除之前的错误信息
-        errorHandler.clearErrors();
+        errorHandler.clearAll();
         
         // 调用注册API
         const response = await authAPI.registerWithEmail({
@@ -210,7 +223,8 @@ async function handleRegister(event) {
             nickname: formData.nickname,
             email: formData.email,
             verificationCode: formData.verificationCode,
-            password: formData.password
+            password: formData.password,
+            confirmPassword: formData.confirmPassword
         });
         
         if (response.success) {

@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/deer_platform?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: deeruser
-    password: 2000Ysy1028
+    password: 
     driver-class-name: com.mysql.cj.jdbc.Driver
     
   jpa:

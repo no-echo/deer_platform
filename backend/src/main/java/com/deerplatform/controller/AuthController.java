@@ -1,5 +1,6 @@
 package com.deerplatform.controller;
 
+import com.deerplatform.dto.EmailRegisterRequest;
 import com.deerplatform.dto.LoginRequest;
 import com.deerplatform.dto.RegisterRequest;
 import com.deerplatform.dto.UserDTO;
@@ -23,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class AuthController {
@@ -139,28 +140,24 @@ public class AuthController {
      */
     @PostMapping("/register-with-email")
     public ResponseEntity<Map<String, Object>> registerWithEmail(
-            @RequestParam String email,
-            @RequestParam String password,
-            @RequestParam String confirmPassword,
-            @RequestParam String verificationCode,
-            @RequestParam(required = false) String nickname) {
+            @Valid @RequestBody EmailRegisterRequest request) {
         try {
             // 验证密码确认
-            if (!password.equals(confirmPassword)) {
+            if (!request.getPassword().equals(request.getConfirmPassword())) {
                 return ResponseEntity.badRequest().body(ResponseUtil.badRequest("两次输入的密码不一致"));
             }
             
             // 验证验证码
-            if (!verificationService.verifyRegistrationCode(email, verificationCode)) {
+            if (!verificationService.verifyRegistrationCode(request.getEmail(), request.getVerificationCode())) {
                 return ResponseEntity.badRequest().body(ResponseUtil.badRequest("验证码错误或已过期"));
             }
             
             // 创建注册请求对象
             RegisterRequest registerRequest = new RegisterRequest();
-            registerRequest.setUsername(email); // 使用邮箱作为用户名
-            registerRequest.setEmail(email);
-            registerRequest.setPassword(password);
-            registerRequest.setNickname(nickname != null ? nickname : email.split("@")[0]);
+            registerRequest.setUsername(request.getUsername());
+            registerRequest.setEmail(request.getEmail());
+            registerRequest.setPassword(request.getPassword());
+            registerRequest.setNickname(request.getNickname() != null ? request.getNickname() : request.getEmail().split("@")[0]);
             
             // 注册用户
             UserDTO user = userService.registerWithEmail(registerRequest);

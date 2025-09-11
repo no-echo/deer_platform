@@ -16,7 +16,7 @@ import javax.validation.Valid;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping("/posts")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class PostController {

@@ -110,6 +110,11 @@ INSERT INTO users (username, email, password_hash, nickname, role, email_verifie
 ('admin', 'admin@deerplatform.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lbdOIwk9q5fJ2kw7m', '管理员', 'ADMIN', TRUE);
 -- 密码是: admin123
 
+-- 插入普通用户yao
+INSERT INTO users (username, email, password_hash, nickname, role, email_verified) VALUES
+('yao', 'yao@deerplatform.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'yaonc', 'USER', TRUE);
+-- 密码是: 2000Ysy1028
+
 
 -- 在现有表后添加以下表结构
 
