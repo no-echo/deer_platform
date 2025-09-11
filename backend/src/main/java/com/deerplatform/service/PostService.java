@@ -6,8 +6,13 @@ import com.deerplatform.dto.PostUpdateRequest;
 import com.deerplatform.entity.Post;
 import com.deerplatform.entity.User;
 import com.deerplatform.entity.Category;
+import com.deerplatform.entity.UserFavorite;
+import com.deerplatform.entity.UserLike;
 import com.deerplatform.repository.PostRepository;
 import com.deerplatform.repository.CategoryRepository;
+import com.deerplatform.repository.UserRepository;
+import com.deerplatform.repository.UserFavoriteRepository;
+import com.deerplatform.repository.UserLikeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -26,6 +33,9 @@ public class PostService {
     
     private final PostRepository postRepository;
     private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
+    private final UserFavoriteRepository userFavoriteRepository;
+    private final UserLikeRepository userLikeRepository;
     
     /**
      * 创建帖子
@@ -39,12 +49,12 @@ public class PostService {
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
         post.setSummary(generateSummary(request.getContent()));
-        post.setAuthor(author);
-        post.setCategory(category);
+        post.setAuthorId(author.getId());  // 修改：设置authorId而不是author对象
+        post.setCategoryId(request.getCategoryId());  // 修改：设置categoryId而不是category对象
         post.setStatus(Post.Status.PUBLISHED);
-        post.setViewCount(0);      // 修改：从 0L 改为 0
-        post.setLikeCount(0);      // 修改：从 0L 改为 0
-        post.setCommentCount(0);   // 修改：从 0L 改为 0
+        post.setViewCount(0);
+        post.setLikeCount(0);
+        post.setCommentCount(0);
         post.setCreatedAt(LocalDateTime.now());
         post.setUpdatedAt(LocalDateTime.now());
         
@@ -69,7 +79,7 @@ public class PostService {
         if (request.getCategoryId() != null) {
             Category category = categoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> new RuntimeException("分类不存在"));
-            post.setCategory(category);
+            post.setCategoryId(request.getCategoryId());  // 修改：设置categoryId而不是category对象
         }
         
         // 更新内容
@@ -158,6 +168,30 @@ public class PostService {
     }
     
     /**
+     * 根据用户名获取用户的帖子
+     */
+    @Transactional(readOnly = true)
+    public Page<PostDTO> getUserPosts(String username, int page, int size) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("用户不存在"));
+        return getUserPosts(user, page, size);
+    }
+    
+    /**
+     * 获取用户收藏的帖子
+     */
+    @Transactional(readOnly = true)
+    public Page<PostDTO> getUserCollections(String username, int page, int size) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("用户不存在"));
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<UserFavorite> favorites = userFavoriteRepository.findByUserIdOrderByCreatedAtDesc(user.getId(), pageable);
+        
+        return favorites.map(favorite -> PostDTO.fromEntity(favorite.getPost()));
+    }
+    
+    /**
      * 获取热门帖子
      */
     @Transactional(readOnly = true)
@@ -210,5 +244,93 @@ public class PostService {
         }
         
         return PageRequest.of(page, size, sort);
+    }
+    
+    /**
+     * 切换帖子点赞状态
+     */
+    public boolean toggleLike(Long postId, Long userId) {
+        // 检查帖子是否存在
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("帖子不存在"));
+        
+        Optional<UserLike> existingLike = userLikeRepository.findByUserIdAndTargetIdAndTargetType(
+                userId, postId, UserLike.TargetType.POST);
+        
+        if (existingLike.isPresent()) {
+            // 已点赞，取消点赞
+            userLikeRepository.deleteByUserIdAndTargetIdAndTargetType(
+                    userId, postId, UserLike.TargetType.POST);
+            post.setLikeCount(Math.max(0, post.getLikeCount() - 1));
+            postRepository.save(post);
+            return false;
+        } else {
+            // 未点赞，添加点赞
+            UserLike userLike = new UserLike();
+            userLike.setUserId(userId);
+            userLike.setTargetId(postId);
+            userLike.setTargetType(UserLike.TargetType.POST);
+            userLikeRepository.save(userLike);
+            
+            post.setLikeCount(post.getLikeCount() + 1);
+            postRepository.save(post);
+            return true;
+        }
+    }
+    
+    /**
+     * 切换帖子收藏状态
+     */
+    public boolean toggleFavorite(Long postId, Long userId) {
+        // 检查帖子是否存在
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("帖子不存在"));
+        
+        Optional<UserFavorite> existingFavorite = userFavoriteRepository.findByUserIdAndPostId(userId, postId);
+        
+        if (existingFavorite.isPresent()) {
+            // 已收藏，取消收藏
+            userFavoriteRepository.deleteByUserIdAndPostId(userId, postId);
+            return false;
+        } else {
+            // 未收藏，添加收藏
+            UserFavorite userFavorite = new UserFavorite();
+            userFavorite.setUserId(userId);
+            userFavorite.setPostId(postId);
+            userFavoriteRepository.save(userFavorite);
+            return true;
+        }
+    }
+    
+    /**
+     * 获取帖子的点赞和收藏状态
+     */
+    @Transactional(readOnly = true)
+    public Map<String, Object> getPostStatus(Long postId, Long userId) {
+        Map<String, Object> status = new HashMap<>();
+        
+        // 获取点赞数量
+        long likeCount = userLikeRepository.countByTargetIdAndTargetType(postId, UserLike.TargetType.POST);
+        status.put("likeCount", likeCount);
+        
+        // 获取收藏数量
+        long favoriteCount = userFavoriteRepository.countByPostId(postId);
+        status.put("favoriteCount", favoriteCount);
+        
+        if (userId != null) {
+            // 检查当前用户是否已点赞
+            boolean isLiked = userLikeRepository.existsByUserIdAndTargetIdAndTargetType(
+                    userId, postId, UserLike.TargetType.POST);
+            status.put("isLiked", isLiked);
+            
+            // 检查当前用户是否已收藏
+            boolean isFavorited = userFavoriteRepository.existsByUserIdAndPostId(userId, postId);
+            status.put("isFavorited", isFavorited);
+        } else {
+            status.put("isLiked", false);
+            status.put("isFavorited", false);
+        }
+        
+        return status;
     }
 }

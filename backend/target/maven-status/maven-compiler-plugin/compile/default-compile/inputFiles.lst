@@ -23,6 +23,7 @@
 /Users/Ryan/workspace/deer/deer_platform/backend/src/main/java/com/deerplatform/service/VerificationService.java
 /Users/Ryan/workspace/deer/deer_platform/backend/src/main/java/com/deerplatform/repository/UserRepository.java
 /Users/Ryan/workspace/deer/deer_platform/backend/src/main/java/com/deerplatform/entity/Post.java
+/Users/Ryan/workspace/deer/deer_platform/backend/src/main/java/com/deerplatform/dto/ChangePasswordRequest.java
 /Users/Ryan/workspace/deer/deer_platform/backend/src/main/java/com/deerplatform/config/ApiConfig.java
 /Users/Ryan/workspace/deer/deer_platform/backend/src/main/java/com/deerplatform/dto/UserDTO.java
 /Users/Ryan/workspace/deer/deer_platform/backend/src/main/java/com/deerplatform/entity/EmailVerification.java
@@ -36,6 +37,7 @@
 /Users/Ryan/workspace/deer/deer_platform/backend/src/main/java/com/deerplatform/config/DatabaseTestController.java
 /Users/Ryan/workspace/deer/deer_platform/backend/src/main/java/com/deerplatform/entity/Comment.java
 /Users/Ryan/workspace/deer/deer_platform/backend/src/main/java/com/deerplatform/dto/PostDTO.java
+/Users/Ryan/workspace/deer/deer_platform/backend/src/main/java/com/deerplatform/controller/UserController.java
 /Users/Ryan/workspace/deer/deer_platform/backend/src/main/java/com/deerplatform/service/EmailService.java
 /Users/Ryan/workspace/deer/deer_platform/backend/src/main/java/com/deerplatform/config/JwtAuthenticationFilter.java
 /Users/Ryan/workspace/deer/deer_platform/backend/src/main/java/com/deerplatform/controller/FileController.java

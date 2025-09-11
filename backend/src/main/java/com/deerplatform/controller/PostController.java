@@ -145,4 +145,51 @@ public class PostController {
             return ResponseEntity.badRequest().body(ResponseUtil.error("获取我的帖子失败: " + e.getMessage()));
         }
     }
+    
+    /**
+     * 点赞/取消点赞帖子
+     */
+    @PostMapping("/{id}/like")
+    public ResponseEntity<Map<String, Object>> toggleLike(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User currentUser) {
+        try {
+            boolean isLiked = postService.toggleLike(id, currentUser.getId());
+            String message = isLiked ? "点赞成功" : "取消点赞成功";
+            return ResponseEntity.ok(ResponseUtil.success(message, Map.of("isLiked", isLiked)));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ResponseUtil.error("操作失败: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * 收藏/取消收藏帖子
+     */
+    @PostMapping("/{id}/favorite")
+    public ResponseEntity<Map<String, Object>> toggleFavorite(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User currentUser) {
+        try {
+            boolean isFavorited = postService.toggleFavorite(id, currentUser.getId());
+            String message = isFavorited ? "收藏成功" : "取消收藏成功";
+            return ResponseEntity.ok(ResponseUtil.success(message, Map.of("isFavorited", isFavorited)));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ResponseUtil.error("操作失败: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * 获取帖子的点赞和收藏状态
+     */
+    @GetMapping("/{id}/status")
+    public ResponseEntity<Map<String, Object>> getPostStatus(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User currentUser) {
+        try {
+            Map<String, Object> status = postService.getPostStatus(id, currentUser != null ? currentUser.getId() : null);
+            return ResponseEntity.ok(ResponseUtil.success("获取状态成功", status));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ResponseUtil.error("获取状态失败: " + e.getMessage()));
+        }
+    }
 }

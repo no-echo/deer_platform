@@ -274,20 +274,29 @@
             // 更新头像
             const avatarElement = document.getElementById('user-avatar');
             const avatarPreview = document.getElementById('avatar-preview');
-            if (user.avatar) {
-                avatarElement.style.backgroundImage = `url(${user.avatar})`;
+            const avatarUrl = user.avatarUrl || user.avatar;
+            
+            if (avatarUrl) {
+                avatarElement.style.backgroundImage = `url(${avatarUrl})`;
                 avatarElement.style.backgroundSize = 'cover';
                 avatarElement.style.backgroundPosition = 'center';
                 avatarElement.textContent = '';
                 
-                avatarPreview.style.backgroundImage = `url(${user.avatar})`;
-                avatarPreview.style.backgroundSize = 'cover';
-                avatarPreview.style.backgroundPosition = 'center';
-                avatarPreview.textContent = '';
+                if (avatarPreview) {
+                    avatarPreview.style.backgroundImage = `url(${avatarUrl})`;
+                    avatarPreview.style.backgroundSize = 'cover';
+                    avatarPreview.style.backgroundPosition = 'center';
+                    avatarPreview.textContent = '';
+                }
             } else {
                 const firstChar = (user.nickname || user.username).charAt(0);
                 avatarElement.textContent = firstChar;
-                avatarPreview.textContent = firstChar;
+                avatarElement.style.backgroundImage = 'none';
+                
+                if (avatarPreview) {
+                    avatarPreview.textContent = firstChar;
+                    avatarPreview.style.backgroundImage = 'none';
+                }
             }
             
             // 更新表单数据
@@ -369,29 +378,48 @@
                 return;
             }
             
-            const response = await fileAPI.uploadAvatar(file);
-            if (response.success) {
-                // 更新用户头像
-                const avatarUrl = response.data.url;
-                currentUser.avatar = avatarUrl;
-                
-                // 更新显示
-                const avatarElement = document.getElementById('user-avatar');
-                const avatarPreview = document.getElementById('avatar-preview');
-                
-                avatarElement.style.backgroundImage = `url(${avatarUrl})`;
-                avatarElement.style.backgroundSize = 'cover';
-                avatarElement.style.backgroundPosition = 'center';
-                avatarElement.textContent = '';
-                
-                avatarPreview.style.backgroundImage = `url(${avatarUrl})`;
-                avatarPreview.style.backgroundSize = 'cover';
-                avatarPreview.style.backgroundPosition = 'center';
-                avatarPreview.textContent = '';
-                
-                alert('头像上传成功！');
-            } else {
-                alert('头像上传失败：' + response.message);
+            try {
+                const response = await fileAPI.uploadAvatar(file);
+                if (response.success) {
+                    // 获取上传后的头像URL
+                    const avatarUrl = response.data.url;
+                    
+                    // 保存头像URL到用户资料
+                    const updateResponse = await userAPI.updateProfile({
+                        ...currentUser,
+                        avatarUrl: avatarUrl
+                    });
+                    
+                    if (updateResponse.success) {
+                        // 更新本地用户信息
+                        currentUser.avatarUrl = avatarUrl;
+                        
+                        // 更新显示
+                        const avatarElement = document.getElementById('user-avatar');
+                        const avatarPreview = document.getElementById('avatar-preview');
+                        
+                        avatarElement.style.backgroundImage = `url(${avatarUrl})`;
+                        avatarElement.style.backgroundSize = 'cover';
+                        avatarElement.style.backgroundPosition = 'center';
+                        avatarElement.textContent = '';
+                        
+                        if (avatarPreview) {
+                            avatarPreview.style.backgroundImage = `url(${avatarUrl})`;
+                            avatarPreview.style.backgroundSize = 'cover';
+                            avatarPreview.style.backgroundPosition = 'center';
+                            avatarPreview.textContent = '';
+                        }
+                        
+                        alert('头像保存成功！');
+                    } else {
+                        alert('头像保存失败：' + updateResponse.message);
+                    }
+                } else {
+                    alert('头像上传失败：' + response.message);
+                }
+            } catch (error) {
+                console.error('头像上传出错:', error);
+                alert('头像上传失败，请稍后重试');
             }
         }
 
@@ -409,9 +437,10 @@
             }
             
             try {
-                const response = await authAPI.changePassword({
+                const response = await userAPI.changePassword({
                     oldPassword: currentPassword,
-                    newPassword: newPassword
+                    newPassword: newPassword,
+                    confirmPassword: confirmPassword
                 });
                 
                 if (response.success) {
@@ -428,7 +457,7 @@
 
         // 加载我的发布
         async function loadMyPosts() {
-            const response = await postAPI.getUserPosts(currentUser.id, 1, 20);
+            const response = await postAPI.getMy(0, 20);
             if (response.success && response.data.posts.length > 0) {
                 userPosts = response.data.posts;
                 displayMyPosts(userPosts);

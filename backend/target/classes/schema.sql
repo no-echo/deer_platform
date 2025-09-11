@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
     nickname VARCHAR(50) COMMENT '昵称',
     avatar_url VARCHAR(255) COMMENT '头像URL',
     bio TEXT COMMENT '个人简介',
+    location VARCHAR(100) COMMENT '所在地区',
     role ENUM('USER', 'ADMIN') DEFAULT 'USER' COMMENT '用户角色',
     status ENUM('ACTIVE', 'INACTIVE', 'BANNED') DEFAULT 'ACTIVE' COMMENT '用户状态',
     email_verified BOOLEAN DEFAULT FALSE COMMENT '邮箱是否验证',

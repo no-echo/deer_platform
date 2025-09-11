@@ -42,8 +42,8 @@ public class PostDTO {
                 .status(post.getStatus().name())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
-                .author(UserDTO.fromEntity(post.getAuthor()))
-                .category(CategoryDTO.fromEntity(post.getCategory()))
+                .author(post.getAuthor() != null ? UserDTO.fromEntity(post.getAuthor()) : null)
+                .category(post.getCategory() != null ? CategoryDTO.fromEntity(post.getCategory()) : null)
                 .build();
     }
 }

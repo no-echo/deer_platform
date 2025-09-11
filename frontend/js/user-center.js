@@ -50,6 +50,7 @@ async function loadUserProfile() {
         if (response.success) {
             currentUser = response.data;
             displayUserProfile(currentUser);
+            updateUserStats();
         } else {
             alert('获取用户信息失败: ' + response.message);
         }
@@ -116,19 +117,34 @@ function displayUserProfile(user) {
 // 更新用户统计数据
 async function updateUserStats() {
     try {
-        // 获取用户发布的帖子数量
-        const postsResponse = await postAPI.getUserPosts(currentUser.id, 1, 1);
-        if (postsResponse.success) {
-            document.getElementById('posts-count').textContent = postsResponse.data.total || 0;
-            document.getElementById('my-posts-count').textContent = postsResponse.data.total || 0;
+        // 获取用户统计信息
+        const statsResponse = await userAPI.getStats();
+        if (statsResponse.success) {
+            const stats = statsResponse.data;
+            
+            // 更新帖子统计
+            document.getElementById('posts-count').textContent = stats.totalPosts || 0;
+            document.getElementById('my-posts-count').textContent = stats.totalPosts || 0;
+            
+            // 更新收藏统计
+            document.getElementById('collections-count').textContent = stats.collections || 0;
+            document.getElementById('my-collections-count').textContent = stats.collections || 0;
+            
+            // 更新关注统计
+            document.getElementById('follows-count').textContent = stats.follows || 0;
+            
+            console.log('用户统计数据:', stats);
+        } else {
+            console.error('获取用户统计失败:', statsResponse.message);
         }
-        
-        // 暂时设置默认值
+    } catch (error) {
+        console.error('获取用户统计数据出错:', error);
+        // 设置默认值
+        document.getElementById('posts-count').textContent = '0';
+        document.getElementById('my-posts-count').textContent = '0';
         document.getElementById('collections-count').textContent = '0';
         document.getElementById('my-collections-count').textContent = '0';
         document.getElementById('follows-count').textContent = '0';
-    } catch (error) {
-        console.error('获取用户统计数据出错:', error);
     }
 }
 
@@ -214,10 +230,19 @@ async function changePassword(event) {
     }
     
     try {
-        const response = await authAPI.changePassword({
+            console.log('开始修改密码，数据:', {
             oldPassword: currentPassword,
-            newPassword: newPassword
+            newPassword: newPassword,
+            confirmPassword: confirmPassword
         });
+        
+        const response = await userAPI.changePassword({
+            oldPassword: currentPassword,
+            newPassword: newPassword,
+            confirmPassword: confirmPassword
+        });
+        
+        console.log('修改密码响应:', response);
         
         if (response.success) {
             alert('密码修改成功！');
@@ -227,16 +252,24 @@ async function changePassword(event) {
         }
     } catch (error) {
         console.error('修改密码出错:', error);
-        alert('密码修改失败，请稍后重试');
+        alert('密码修改失败，请稍后重试。错误详情：' + error.message);
     }
 }
 
 // 加载我的发布
 async function loadMyPosts() {
-    const response = await postAPI.getUserPosts(currentUser.id, 1, 20);
-    if (response.success && response.data.posts.length > 0) {
-        userPosts = response.data.posts;
-        displayMyPosts(userPosts);
+    try {
+        const response = await postAPI.getMy(0, 20);
+        if (response.success && response.data.content && response.data.content.length > 0) {
+            userPosts = response.data.content;
+            displayMyPosts(userPosts);
+            document.getElementById('my-posts-empty').style.display = 'none';
+        } else {
+            document.getElementById('my-posts-empty').style.display = 'block';
+        }
+    } catch (error) {
+        console.error('加载我的发布失败:', error);
+        document.getElementById('my-posts-empty').style.display = 'block';
     }
 }
 
@@ -274,11 +307,41 @@ function displayMyPosts(posts) {
     `).join('');
 }
 
+// 显示我的收藏
+function displayMyCollections(collections) {
+    const listElement = document.getElementById('my-collections-list');
+    
+    listElement.innerHTML = collections.map(post => `
+        <div class="post-item">
+            <div class="post-item-header">
+                <a href="post-detail.html?id=${post.id}" class="post-item-title">${escapeHtml(post.title)}</a>
+                <div class="post-item-actions">
+                    <a href="#" class="action-link" onclick="removeFromCollection(${post.id})">取消收藏</a>
+                </div>
+            </div>
+            <div class="post-item-meta">
+                <span>收藏时间：${formatDate(post.collectedAt || post.createdAt)}</span>
+                <span>分类：${escapeHtml(post.categoryName || '未分类')}</span>
+                <span>阅读：${post.viewCount || 0}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
 // 加载我的收藏
 async function loadMyCollections() {
-    // 这里需要实现收藏相关的API调用
-    // 暂时显示空状态
-    document.getElementById('my-collections-empty').style.display = 'block';
+    try {
+        const response = await userAPI.getCollections(0, 20);
+        if (response.success && response.data.content && response.data.content.length > 0) {
+            displayMyCollections(response.data.content);
+            document.getElementById('my-collections-empty').style.display = 'none';
+        } else {
+            document.getElementById('my-collections-empty').style.display = 'block';
+        }
+    } catch (error) {
+        console.error('加载我的收藏失败:', error);
+        document.getElementById('my-collections-empty').style.display = 'block';
+    }
 }
 
 // 退出登录

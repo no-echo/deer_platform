@@ -39,6 +39,9 @@ public class User implements UserDetails {
     @Column(columnDefinition = "TEXT")
     private String bio;
     
+    @Column(length = 100)
+    private String location;
+    
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.USER;

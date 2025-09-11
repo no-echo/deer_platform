@@ -342,6 +342,42 @@ const categoryAPI = {
 };
 
 // 文件上传相关API
+// 用户资料相关API
+const userAPI = {
+    // 获取用户资料
+    getProfile: async () => {
+        return await apiClient.get(API_ENDPOINTS.USER_PROFILE);
+    },
+    
+    // 更新用户资料
+    updateProfile: async (profileData) => {
+        return await apiClient.put(API_ENDPOINTS.UPDATE_USER_PROFILE, profileData);
+    },
+    
+    // 修改密码
+    changePassword: async (passwordData) => {
+        return await apiClient.put(API_ENDPOINTS.CHANGE_PASSWORD, passwordData);
+    },
+    
+    // 获取用户发布的帖子
+    getPosts: async (page = 0, size = 10) => {
+        const username = localStorage.getItem('username');
+        return await apiClient.get(`/user/${username}/posts?page=${page}&size=${size}`);
+    },
+    
+    // 获取用户收藏的帖子
+    getCollections: async (page = 0, size = 10) => {
+        const username = localStorage.getItem('username');
+        return await apiClient.get(`/user/${username}/collections?page=${page}&size=${size}`);
+    },
+    
+    // 获取用户统计信息
+    getStats: async () => {
+        const username = localStorage.getItem('username');
+        return await apiClient.get(`/user/${username}/stats`);
+    }
+};
+
 const fileAPI = {
     // 上传头像
     uploadAvatar: async (file) => {
@@ -450,6 +486,7 @@ const adminAPI = {
 window.authAPI = authAPI;
 window.postAPI = postAPI;
 window.categoryAPI = categoryAPI;
+window.userAPI = userAPI;
 window.fileAPI = fileAPI;
 window.adminAPI = adminAPI;
 window.apiClient = apiClient;

@@ -449,21 +449,16 @@ function initializePage() {
     restoreDraft();
     
     // 绑定表单验证
-    formValidator.bindFormValidation('postForm', {
-        title: {
-            required: true,
-            minLength: 5,
-            maxLength: 100
-        },
-        categoryId: {
-            required: true
-        },
-        content: {
-            required: true,
-            minLength: 10,
-            maxLength: 10000
-        }
-    });
+    const postForm = document.getElementById('postForm');
+    if (postForm && window.formValidator && typeof window.formValidator.bindForm === 'function') {
+        formValidator.bindForm(postForm, {
+            title: [{ type: 'required', message: '请输入标题' }, { type: 'minLength', param: 5, message: '标题至少5个字符' }, { type: 'maxLength', param: 100, message: '标题不能超过100个字符' }],
+            category: [{ type: 'required', message: '请选择分类' }],
+            content: [{ type: 'required', message: '请输入内容' }, { type: 'minLength', param: 10, message: '内容至少10个字符' }]
+        });
+    } else {
+        console.error('表单验证器未加载或表单元素未找到');
+    }
 }
 
 // 页面加载完成后初始化

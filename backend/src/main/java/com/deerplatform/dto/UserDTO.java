@@ -14,6 +14,7 @@ public class UserDTO {
     private String nickname;
     private String avatarUrl;
     private String bio;
+    private String location;
     private User.Role role;
     private User.Status status;
     private Boolean emailVerified;
@@ -28,6 +29,7 @@ public class UserDTO {
         dto.setNickname(user.getNickname());
         dto.setAvatarUrl(user.getAvatarUrl());
         dto.setBio(user.getBio());
+        dto.setLocation(user.getLocation());
         dto.setRole(user.getRole());
         dto.setStatus(user.getStatus());
         dto.setEmailVerified(user.getEmailVerified());

@@ -11,6 +11,14 @@ const API_ENDPOINTS = {
     LOGOUT: '/auth/logout',
     CURRENT_USER: '/auth/me',
     
+    // 用户资料管理
+    USER_PROFILE: '/user/profile',
+    UPDATE_USER_PROFILE: '/user/profile',
+    CHANGE_PASSWORD: '/user/password',
+    USER_POSTS: '/user/posts',
+    USER_COLLECTIONS: '/user/collections',
+    USER_STATS: '/user/stats',
+    
     // 帖子管理 - 移除重复的/api前缀
     POSTS: '/posts',
     POST_DETAIL: '/posts',

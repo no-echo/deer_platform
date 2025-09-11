@@ -4,6 +4,7 @@ import com.deerplatform.dto.RegisterRequest;
 import com.deerplatform.dto.UserDTO;
 import com.deerplatform.entity.User;
 import com.deerplatform.repository.UserRepository;
+import com.deerplatform.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -21,6 +24,7 @@ public class UserService implements UserDetailsService {
     
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PostRepository postRepository;
     
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -94,6 +98,9 @@ public class UserService implements UserDetailsService {
         if (userDTO.getAvatarUrl() != null) {
             user.setAvatarUrl(userDTO.getAvatarUrl());
         }
+        if (userDTO.getLocation() != null) {
+            user.setLocation(userDTO.getLocation());
+        }
         
         User savedUser = userRepository.save(user);
         return UserDTO.fromEntity(savedUser);
@@ -137,5 +144,53 @@ public class UserService implements UserDetailsService {
         
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
+    }
+    
+    /**
+     * 修改密码
+     */
+    @Transactional
+    public void changePassword(String username, String oldPassword, String newPassword) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("用户不存在"));
+        
+        // 验证原密码
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new RuntimeException("原密码错误");
+        }
+        
+        // 更新密码
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+    
+    /**
+     * 获取用户统计信息
+     */
+    public Map<String, Object> getUserStats(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("用户不存在"));
+        
+        Map<String, Object> stats = new HashMap<>();
+        
+        // 基本信息
+        stats.put("userId", user.getId());
+        stats.put("username", user.getUsername());
+        stats.put("joinDate", user.getCreatedAt());
+        
+        // 帖子统计
+        long publishedPosts = postRepository.countByAuthorAndStatus(user, com.deerplatform.entity.Post.Status.PUBLISHED);
+        long draftPosts = postRepository.countByAuthorAndStatus(user, com.deerplatform.entity.Post.Status.DRAFT);
+        stats.put("publishedPosts", publishedPosts);
+        stats.put("draftPosts", draftPosts);
+        stats.put("totalPosts", publishedPosts + draftPosts);
+        
+        // 收藏统计（暂时设为0，后续实现收藏功能时更新）
+        stats.put("collections", 0);
+        
+        // 关注统计（暂时设为0，后续实现关注功能时更新）
+        stats.put("follows", 0);
+        
+        return stats;
     }
 }

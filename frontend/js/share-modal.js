@@ -53,7 +53,7 @@
                 // 检查分享按钮是否存在
                 var shareButtons = document.querySelectorAll('.action-btn');
                 if (!shareButtons || shareButtons.length === 0) {
-                    console.warn('未找到分享按钮，跳过事件绑定');
+                    console.log('未找到分享按钮，跳过事件绑定');
                     return;
                 }
                 

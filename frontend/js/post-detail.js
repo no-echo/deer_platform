@@ -37,7 +37,14 @@ async function checkLoginStatus() {
 // 加载帖子详情
 async function loadPostDetail(postId) {
     try {
-        currentPost = await postAPI.getById(postId);
+        const response = await postAPI.getById(postId);
+        
+        // 检查API响应格式
+        if (response && response.success && response.data) {
+            currentPost = response.data;
+        } else {
+            throw new Error(response.message || '获取帖子数据失败');
+        }
         
         // 更新页面标题
         document.title = `${currentPost.title} - 林麝养殖交流分享平台`;
@@ -53,6 +60,14 @@ async function loadPostDetail(postId) {
         
         // 更新用户头像和导航
         updateUserNavigation();
+        
+        // 获取帖子状态（点赞和收藏状态）
+        const postStatus = await getPostStatus(postId);
+        currentPost.isLiked = postStatus.isLiked;
+        currentPost.isFavorited = postStatus.isFavorited;
+        
+        // 更新操作按钮
+        updatePostActions();
         
         // 加载相关推荐
         loadRelatedPosts();
@@ -115,14 +130,19 @@ function updatePostContent() {
 function updatePostActions() {
     const actionsElement = document.querySelector('.post-actions');
     if (actionsElement) {
+        const likeClass = currentPost.isLiked ? 'action-btn active' : 'action-btn';
+        const favoriteClass = currentPost.isFavorited ? 'action-btn active' : 'action-btn';
+        const likeText = currentPost.isLiked ? '已点赞' : '点赞';
+        const favoriteText = currentPost.isFavorited ? '已收藏' : '收藏';
+        
         actionsElement.innerHTML = `
-            <button class="action-btn" id="likeBtn" onclick="toggleLike()">
+            <button class="${likeClass}" id="likeBtn" onclick="toggleLike()">
                 <span>👍</span>
-                <span>点赞 (${currentPost.likeCount || 0})</span>
+                <span>${likeText} (${currentPost.likeCount || 0})</span>
             </button>
-            <button class="action-btn" id="favoriteBtn" onclick="toggleFavorite()">
+            <button class="${favoriteClass}" id="favoriteBtn" onclick="toggleFavorite()">
                 <span>⭐</span>
-                <span>收藏 (${currentPost.favoriteCount || 0})</span>
+                <span>${favoriteText} (${currentPost.favoriteCount || 0})</span>
             </button>
             <button class="action-btn" onclick="sharePost()">
                 <span>📤</span>
@@ -249,9 +269,26 @@ async function toggleLike() {
     }
     
     try {
-        // 这里需要实现点赞API
-        alert('点赞功能开发中...');
+        const response = await fetch(`/api/posts/${currentPost.id}/like`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            // 更新点赞状态和数量
+            currentPost.isLiked = result.isLiked;
+            currentPost.likeCount = result.likeCount;
+            updatePostActions();
+        } else {
+            const error = await response.json();
+            alert('操作失败: ' + (error.message || '未知错误'));
+        }
     } catch (error) {
+        console.error('点赞操作失败:', error);
         alert('操作失败: ' + error.message);
     }
 }
@@ -265,10 +302,53 @@ async function toggleFavorite() {
     }
     
     try {
-        // 这里需要实现收藏API
-        alert('收藏功能开发中...');
+        const response = await fetch(`/api/posts/${currentPost.id}/favorite`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            // 更新收藏状态和数量
+            currentPost.isFavorited = result.isFavorited;
+            currentPost.favoriteCount = result.favoriteCount;
+            updatePostActions();
+        } else {
+            const error = await response.json();
+            alert('操作失败: ' + (error.message || '未知错误'));
+        }
     } catch (error) {
+        console.error('收藏操作失败:', error);
         alert('操作失败: ' + error.message);
+    }
+}
+
+// 获取帖子状态（点赞和收藏状态）
+async function getPostStatus(postId) {
+    if (!currentUser) {
+        return { isLiked: false, isFavorited: false };
+    }
+    
+    try {
+        const response = await fetch(`/api/posts/${postId}/status`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+        
+        if (response.ok) {
+            return await response.json();
+        } else {
+            console.error('获取帖子状态失败');
+            return { isLiked: false, isFavorited: false };
+        }
+    } catch (error) {
+        console.error('获取帖子状态失败:', error);
+        return { isLiked: false, isFavorited: false };
     }
 }
 
