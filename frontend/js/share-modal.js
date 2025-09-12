@@ -50,6 +50,11 @@
         // 超级安全的事件绑定
         setTimeout(function() {
             try {
+                // 检查document是否存在
+                if (!document || typeof document.querySelectorAll !== 'function') {
+                    return;
+                }
+                
                 // 检查分享按钮是否存在
                 var shareButtons = document.querySelectorAll('.action-btn');
                 if (!shareButtons || shareButtons.length === 0) {
@@ -61,7 +66,7 @@
                     var btn = shareButtons[i];
                     if (btn && btn.textContent && btn.textContent.indexOf('分享') !== -1) {
                         // 安全的事件绑定
-                        if (typeof btn.addEventListener === 'function') {
+                        if (btn && typeof btn.addEventListener === 'function') {
                             btn.addEventListener('click', function() {
                                 self.showModal();
                             });

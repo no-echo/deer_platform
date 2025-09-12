@@ -20,7 +20,8 @@ public interface UserFavoriteRepository extends JpaRepository<UserFavorite, Long
     boolean existsByUserIdAndPostId(Long userId, Long postId);
     
     // 获取用户收藏的帖子列表
-    @Query("SELECT uf FROM UserFavorite uf JOIN FETCH uf.post p WHERE uf.userId = :userId ORDER BY uf.createdAt DESC")
+    @Query(value = "SELECT uf FROM UserFavorite uf JOIN FETCH uf.post p WHERE uf.userId = :userId ORDER BY uf.createdAt DESC",
+           countQuery = "SELECT COUNT(uf) FROM UserFavorite uf WHERE uf.userId = :userId")
     Page<UserFavorite> findByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId, Pageable pageable);
     
     // 统计用户收藏数量

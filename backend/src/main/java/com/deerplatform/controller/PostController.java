@@ -139,6 +139,9 @@ public class PostController {
             @RequestParam(defaultValue = "10") int size,
             @AuthenticationPrincipal User currentUser) {
         try {
+            if (currentUser == null) {
+                return ResponseEntity.status(401).body(ResponseUtil.error("用户未登录"));
+            }
             Page<PostDTO> posts = postService.getUserPosts(currentUser, page, size);
             return ResponseEntity.ok(ResponseUtil.success("获取我的帖子成功", posts));
         } catch (Exception e) {

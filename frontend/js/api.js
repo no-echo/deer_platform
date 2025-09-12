@@ -267,6 +267,12 @@ const postAPI = {
     getMy: async (page = 0, size = 10) => {
         const params = new URLSearchParams({ page, size });
         return await apiClient.get(`${API_ENDPOINTS.POST_MY}?${params}`);
+    },
+    
+    // 获取用户帖子（兼容性函数）
+    getUserPosts: async (userId, page = 0, size = 10) => {
+        const params = new URLSearchParams({ page, size });
+        return await apiClient.get(`${API_ENDPOINTS.POST_MY}?${params}`);
     }
 };
 

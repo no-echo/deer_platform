@@ -313,11 +313,22 @@
         // 更新用户统计数据
         async function updateUserStats() {
             try {
+                // 检查用户是否已登录
+                if (!currentUser) {
+                    console.log('用户未登录，跳过统计数据更新');
+                    return;
+                }
+                
                 // 获取用户发布的帖子数量
-                const postsResponse = await postAPI.getUserPosts(currentUser.id, 1, 1);
-                if (postsResponse.success) {
-                    document.getElementById('posts-count').textContent = postsResponse.data.total || 0;
-                    document.getElementById('my-posts-count').textContent = postsResponse.data.total || 0;
+                const postsResponse = await postAPI.getMy(0, 1);
+                if (postsResponse.success && postsResponse.data) {
+                    const total = postsResponse.data.totalElements || 0;
+                    document.getElementById('posts-count').textContent = total;
+                    document.getElementById('my-posts-count').textContent = total;
+                } else {
+                    // 设置默认值
+                    document.getElementById('posts-count').textContent = '0';
+                    document.getElementById('my-posts-count').textContent = '0';
                 }
                 
                 // 获取用户收藏数量（这里假设有相应的API）
@@ -457,10 +468,35 @@
 
         // 加载我的发布
         async function loadMyPosts() {
-            const response = await postAPI.getMy(0, 20);
-            if (response.success && response.data.posts.length > 0) {
-                userPosts = response.data.posts;
-                displayMyPosts(userPosts);
+            try {
+                // 检查用户是否已登录
+                if (!currentUser) {
+                    console.log('用户未登录，无法加载帖子');
+                    userPosts = [];
+                    displayMyPosts([]);
+                    return;
+                }
+                
+                const response = await postAPI.getMy(0, 20);
+                if (response.success && response.data) {
+                    // 处理分页数据结构
+                    const posts = response.data.content || response.data.posts || [];
+                    userPosts = posts;
+                    displayMyPosts(userPosts);
+                } else {
+                    console.log('没有找到帖子数据');
+                    userPosts = [];
+                    displayMyPosts([]);
+                }
+            } catch (error) {
+                console.error('加载我的帖子失败:', error);
+                if (error.message && error.message.includes('401')) {
+                    console.log('用户未认证，跳转到登录页面');
+                    window.location.href = 'login.html';
+                } else {
+                    userPosts = [];
+                    displayMyPosts([]);
+                }
             }
         }
         
