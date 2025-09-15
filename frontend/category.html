@@ -96,6 +96,8 @@
                 <h3>暂无帖子</h3>
                 <p>该分类下还没有帖子，<a href="create-post.html">发布第一篇</a>吧！</p>
             </div>
+            
+
 
             <!-- 分页 -->
             <div class="pagination" id="pagination" style="display: none;">
@@ -159,7 +161,6 @@
     </div>
 
     <script src="js/config.js"></script>
-    <script src="js/api.js"></script>
     <script>
         let currentCategory = null;
         let currentPage = 1;
@@ -168,11 +169,11 @@
         let isLoading = false;
 
         // 页面加载时初始化
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             checkLoginStatus();
-            loadCategories();
-            setCategoryFromURL();
             bindEvents();
+            await loadCategories();
+            setCategoryFromURL();
         });
 
         // 绑定事件
@@ -258,7 +259,8 @@
         // 根据URL参数设置分类
         function setCategoryFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
-            const categoryId = urlParams.get('cat');
+            // 兼容两种参数名：id 和 cat
+            const categoryId = urlParams.get('id') || urlParams.get('cat');
             
             if (categoryId) {
                 currentCategory = categoryId;
@@ -317,7 +319,7 @@
                 const [sortField, sortOrder] = sortValue.split(',');
                 
                 const params = {
-                    page: currentPage,
+                    page: currentPage - 1, // 后端分页从0开始
                     size: pageSize,
                     sortBy: sortField,
                     sortOrder: sortOrder
@@ -338,9 +340,15 @@
                 const response = await postAPI.getList(params);
                 
                 if (response.success) {
-                    displayPosts(response.data.posts);
-                    updatePagination(response.data.currentPage, response.data.totalPages, response.data.total);
-                    document.getElementById('total-posts').textContent = response.data.total;
+                    // 后端返回的数据结构：response.data.content 是帖子数组
+                    const posts = response.data.content || [];
+                    const totalElements = response.data.totalElements || 0;
+                    const totalPages = response.data.totalPages || 0;
+                    const backendCurrentPage = response.data.number || 0;
+
+                    displayPosts(posts);
+                    updatePagination(backendCurrentPage + 1, totalPages, totalElements); // 转换为前端页码
+                    document.getElementById('total-posts').textContent = totalElements;
                 } else {
                     showError('加载帖子失败: ' + response.message);
                 }
@@ -384,10 +392,10 @@
                         <div class="post-meta">
                             <div class="post-author">
                                 <span>👤</span>
-                                <span>${escapeHtml(post.authorName || '匿名用户')}</span>
+                                <span>${escapeHtml(post.author?.nickname || post.author?.username || '匿名用户')}</span>
                             </div>
                             <span>${formatDate(post.createdAt)}</span>
-                            <span class="post-category">${escapeHtml(post.categoryName || '未分类')}</span>
+                            <span class="post-category">${escapeHtml(post.category?.name || '未分类')}</span>
                             <div class="post-stats">
                                 <div class="stat-item">
                                     <span>👁</span>
@@ -476,7 +484,9 @@
                 });
                 
                 if (response.success) {
-                    displayHotPosts(response.data.posts);
+                    // 使用正确的数据结构
+                    const posts = response.data.content || [];
+                    displayHotPosts(posts);
                 }
             } catch (error) {
                 console.error('加载热门帖子失败:', error);
@@ -601,6 +611,9 @@
             };
             return statusMap[status] || '未知';
         }
+        
+
     </script>
+    <script src="js/api.js"></script>
 </body>
 </html>

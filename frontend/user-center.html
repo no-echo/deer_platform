@@ -536,9 +536,79 @@
 
         // 加载我的收藏
         async function loadMyCollections() {
-            // 这里需要实现收藏相关的API调用
-            // 暂时显示空状态
-            document.getElementById('my-collections-empty').style.display = 'block';
+            try {
+                // 检查用户是否已登录
+                if (!currentUser) {
+                    console.log('用户未登录，无法加载收藏');
+                    document.getElementById('my-collections-empty').style.display = 'block';
+                    return;
+                }
+                
+                const response = await userAPI.getCollections(0, 20);
+                if (response.success && response.data && response.data.content) {
+                    const collections = response.data.content;
+                    if (collections.length > 0) {
+                        displayMyCollections(collections);
+                        document.getElementById('my-collections-empty').style.display = 'none';
+                    } else {
+                        document.getElementById('my-collections-empty').style.display = 'block';
+                    }
+                } else {
+                    console.log('没有找到收藏数据');
+                    document.getElementById('my-collections-empty').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('加载我的收藏失败:', error);
+                if (error.message && error.message.includes('401')) {
+                    console.log('用户未认证，跳转到登录页面');
+                    window.location.href = 'login.html';
+                } else {
+                    document.getElementById('my-collections-empty').style.display = 'block';
+                }
+            }
+        }
+
+        // 显示我的收藏
+        function displayMyCollections(collections) {
+            const listElement = document.getElementById('my-collections-list');
+            
+            listElement.innerHTML = collections.map(post => `
+                <div class="post-item">
+                    <div class="post-item-header">
+                        <a href="post-detail.html?id=${post.id}" class="post-item-title">${escapeHtml(post.title)}</a>
+                        <div class="post-item-actions">
+                            <a href="#" class="action-link" onclick="removeFromCollection(${post.id})">取消收藏</a>
+                        </div>
+                    </div>
+                    <div class="post-item-meta">
+                        <span>收藏时间：${formatDate(post.createdAt)}</span>
+                        <span>分类：${escapeHtml(post.categoryName || '未分类')}</span>
+                        <span>阅读：${post.viewCount || 0}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 取消收藏
+        async function removeFromCollection(postId) {
+            if (!confirm('确定要取消收藏这篇帖子吗？')) {
+                return;
+            }
+            
+            try {
+                const response = await postAPI.toggleFavorite(postId);
+                if (response.success) {
+                    // 重新加载收藏列表
+                    loadMyCollections();
+                    // 更新收藏数量
+                    updateUserStats();
+                } else {
+                    alert('取消收藏失败: ' + (response.message || '未知错误'));
+                }
+            } catch (error) {
+                console.error('取消收藏失败:', error);
+                alert('取消收藏失败: ' + error.message);
+            }
         }
 
         // 退出登录

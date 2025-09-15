@@ -269,23 +269,18 @@ async function toggleLike() {
     }
     
     try {
-        const response = await fetch(`/api/posts/${currentPost.id}/like`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+        const response = await postAPI.toggleLike(currentPost.id);
+        if (response.success) {
+            // 更新点赞状态
+            currentPost.isLiked = response.data.isLiked;
+            // 重新获取帖子状态以更新计数
+            const statusResponse = await postAPI.getStatus(currentPost.id);
+            if (statusResponse.success) {
+                currentPost.likeCount = statusResponse.data.likeCount;
             }
-        });
-        
-        if (response.ok) {
-            const result = await response.json();
-            // 更新点赞状态和数量
-            currentPost.isLiked = result.isLiked;
-            currentPost.likeCount = result.likeCount;
             updatePostActions();
         } else {
-            const error = await response.json();
-            alert('操作失败: ' + (error.message || '未知错误'));
+            alert('操作失败: ' + (response.message || '未知错误'));
         }
     } catch (error) {
         console.error('点赞操作失败:', error);
@@ -302,23 +297,18 @@ async function toggleFavorite() {
     }
     
     try {
-        const response = await fetch(`/api/posts/${currentPost.id}/favorite`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+        const response = await postAPI.toggleFavorite(currentPost.id);
+        if (response.success) {
+            // 更新收藏状态
+            currentPost.isFavorited = response.data.isFavorited;
+            // 重新获取帖子状态以更新计数
+            const statusResponse = await postAPI.getStatus(currentPost.id);
+            if (statusResponse.success) {
+                currentPost.favoriteCount = statusResponse.data.favoriteCount;
             }
-        });
-        
-        if (response.ok) {
-            const result = await response.json();
-            // 更新收藏状态和数量
-            currentPost.isFavorited = result.isFavorited;
-            currentPost.favoriteCount = result.favoriteCount;
             updatePostActions();
         } else {
-            const error = await response.json();
-            alert('操作失败: ' + (error.message || '未知错误'));
+            alert('操作失败: ' + (response.message || '未知错误'));
         }
     } catch (error) {
         console.error('收藏操作失败:', error);
@@ -333,17 +323,11 @@ async function getPostStatus(postId) {
     }
     
     try {
-        const response = await fetch(`/api/posts/${postId}/status`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-        });
-        
-        if (response.ok) {
-            return await response.json();
+        const response = await postAPI.getStatus(postId);
+        if (response.success) {
+            return response.data;
         } else {
-            console.error('获取帖子状态失败');
+            console.error('获取帖子状态失败:', response.message);
             return { isLiked: false, isFavorited: false };
         }
     } catch (error) {

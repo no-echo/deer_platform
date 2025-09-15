@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API测试页面</title>
+</head>
+<body>
+    <h1>API测试页面</h1>
+    <button onclick="testPostAPI()">测试帖子API</button>
+    <div id="result"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        async function testPostAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '正在测试API...';
+            
+            try {
+                console.log('开始测试帖子API');
+                const params = {
+                    categoryId: 1,
+                    page: 0,
+                    size: 10
+                };
+                
+                console.log('请求参数:', params);
+                const response = await postAPI.getList(params);
+                console.log('API响应:', response);
+                
+                if (response.success) {
+                    const posts = response.data.content || [];
+                    resultDiv.innerHTML = `
+                        <h3>API调用成功</h3>
+                        <p>找到 ${posts.length} 篇帖子</p>
+                        <pre>${JSON.stringify(response, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <h3>API调用失败</h3>
+                        <p>错误信息: ${response.message}</p>
+                        <pre>${JSON.stringify(response, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                console.error('API测试失败:', error);
+                resultDiv.innerHTML = `
+                    <h3>API调用异常</h3>
+                    <p>错误信息: ${error.message}</p>
+                    <pre>${error.stack}</pre>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -53,6 +53,9 @@ async function loadCategoriesAndPosts() {
         
         const categories = processedCategories.data;
         
+        // 更新导航菜单中的分类链接
+        updateNavigationCategories(categories);
+        
         // 获取每个分类的最新帖子
         const categoryCards = document.querySelectorAll('.category-card');
         
@@ -107,6 +110,26 @@ async function loadCategoriesAndPosts() {
         errorHandler.hideLoading();
         errorHandler.showError('加载页面内容失败，请刷新页面重试');
         // 如果API调用失败，保持静态数据显示
+    }
+}
+
+// 更新导航菜单中的分类链接
+function updateNavigationCategories(categories) {
+    const navMenu = document.querySelector('.nav-menu');
+    if (!navMenu) return;
+    
+    // 找到分类相关的导航项（除了首页）
+    const categoryLinks = navMenu.querySelectorAll('li:not(:first-child) a');
+    
+    // 更新前4个分类链接
+    for (let i = 0; i < Math.min(categories.length, categoryLinks.length); i++) {
+        const category = categories[i];
+        const link = categoryLinks[i];
+        
+        if (link && category) {
+            link.href = `category.html?id=${category.id}`;
+            link.textContent = dataProcessor.escapeHtml(category.name);
+        }
     }
 }
 

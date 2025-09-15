@@ -269,10 +269,25 @@ const postAPI = {
         return await apiClient.get(`${API_ENDPOINTS.POST_MY}?${params}`);
     },
     
-    // 获取用户帖子（兼容性函数）
+    // 获取用户发布的帖子
     getUserPosts: async (userId, page = 0, size = 10) => {
         const params = new URLSearchParams({ page, size });
-        return await apiClient.get(`${API_ENDPOINTS.POST_MY}?${params}`);
+        return await apiClient.get(`${API_ENDPOINTS.USER_POSTS}/${userId}?${params}`);
+    },
+    
+    // 点赞/取消点赞帖子
+    toggleLike: async (postId) => {
+        return await apiClient.post(`${API_ENDPOINTS.POSTS}/${postId}/like`);
+    },
+    
+    // 收藏/取消收藏帖子
+    toggleFavorite: async (postId) => {
+        return await apiClient.post(`${API_ENDPOINTS.POSTS}/${postId}/favorite`);
+    },
+    
+    // 获取帖子状态（点赞、收藏状态）
+    getStatus: async (postId) => {
+        return await apiClient.get(`${API_ENDPOINTS.POSTS}/${postId}/status`);
     }
 };
 
