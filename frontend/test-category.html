@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分类页面测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .loading { color: #666; }
+        .error { color: red; }
+        .post { border: 1px solid #ddd; margin: 10px 0; padding: 10px; }
+        .debug { background: #f0f0f0; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>分类页面测试</h1>
+    <div id="debug" class="debug"></div>
+    <div id="category-info"></div>
+    <div id="posts-container"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/error-handler.js"></script>
+    <script src="js/data-processor.js"></script>
+    <script src="js/api.js"></script>
+    
+    <script>
+        function log(message) {
+            console.log(message);
+            const debugDiv = document.getElementById('debug');
+            debugDiv.innerHTML += '<div>' + new Date().toLocaleTimeString() + ': ' + message + '</div>';
+        }
+
+        async function testCategoryPage() {
+            log('开始测试分类页面...');
+            
+            try {
+                // 测试获取分类信息
+                log('测试获取分类1的信息...');
+                const categoryResponse = await categoryAPI.getById('1');
+                log('分类API响应: ' + JSON.stringify(categoryResponse));
+                
+                if (categoryResponse.success) {
+                    const category = categoryResponse.data;
+                    document.getElementById('category-info').innerHTML = 
+                        '<h2>' + category.name + '</h2><p>' + category.description + '</p>';
+                }
+                
+                // 测试获取帖子列表
+                log('测试获取分类1的帖子列表...');
+                const postsResponse = await postAPI.getList({
+                    categoryId: '1',
+                    page: 0,
+                    size: 10,
+                    sortBy: 'createdAt',
+                    sortOrder: 'desc'
+                });
+                log('帖子API响应: ' + JSON.stringify(postsResponse));
+                
+                if (postsResponse.success) {
+                    const posts = postsResponse.data.content || [];
+                    const postsContainer = document.getElementById('posts-container');
+                    
+                    if (posts.length === 0) {
+                        postsContainer.innerHTML = '<p>暂无帖子</p>';
+                    } else {
+                        let html = '<h3>帖子列表 (' + posts.length + '个):</h3>';
+                        posts.forEach(post => {
+                            html += '<div class="post">';
+                            html += '<h4>' + post.title + '</h4>';
+                            html += '<p>' + (post.summary || post.content.substring(0, 100)) + '</p>';
+                            html += '<small>作者: ' + post.author.nickname + ' | 时间: ' + new Date(post.createdAt).toLocaleString() + '</small>';
+                            html += '</div>';
+                        });
+                        postsContainer.innerHTML = html;
+                    }
+                }
+                
+                log('测试完成！');
+                
+            } catch (error) {
+                log('测试出错: ' + error.message);
+                console.error('详细错误:', error);
+            }
+        }
+
+        // 页面加载完成后开始测试
+        document.addEventListener('DOMContentLoaded', function() {
+            log('页面加载完成，开始测试...');
+            testCategoryPage();
+        });
+    </script>
+</body>
+</html>

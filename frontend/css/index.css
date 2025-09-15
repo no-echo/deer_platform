@@ -20,12 +20,19 @@
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
+        html, body {
+            height: 100%;
+        }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
             line-height: 1.7;
             color: var(--text-color);
             background-color: var(--bg-color);
             font-size: 16px;
+            position: relative;
+            min-height: 100vh;
+            padding-bottom: 200px; /* 为footer预留空间 */
         }
         
         /* Header优化 */
@@ -583,8 +590,11 @@
             background: linear-gradient(135deg, var(--primary-color) 0%, #1a3a1e 100%);
             color: var(--white);
             padding: 3rem 0 2rem;
-            margin-top: 4rem;
-            position: relative;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
         }
         
         .footer::before {
@@ -2366,5 +2376,141 @@
             #usernameDisplay {
                 display: block;
                 margin-top: 2px;
+            }
+        }
+
+        /* 搜索结果样式 */
+        .search-results-container {
+            margin-top: 2rem;
+        }
+
+        .search-results-header {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .search-results-header h2 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+        }
+
+        .search-results-header p {
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+
+        .search-result-item {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .search-result-item:hover {
+            box-shadow: var(--shadow-medium);
+            transform: translateY(-2px);
+        }
+
+        .search-result-item .post-item {
+            padding: 1.5rem;
+        }
+
+        .search-result-item .post-title {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 600;
+            line-height: 1.4;
+            display: block;
+            margin-bottom: 0.75rem;
+        }
+
+        .search-result-item .post-title:hover {
+            color: var(--secondary-color);
+        }
+
+        .search-result-item .post-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .search-result-item .post-excerpt {
+            color: var(--text-color);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .no-results {
+            background: var(--white);
+            padding: 3rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            text-align: center;
+        }
+
+        .no-results p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        /* 搜索分页样式 */
+        .search-results-content .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            padding: 2rem 0;
+        }
+
+        .search-results-content .pagination .btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            background: var(--white);
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .search-results-content .pagination .btn:hover {
+            background: var(--primary-color);
+            color: var(--white);
+            border-color: var(--primary-color);
+        }
+
+        .search-results-content .pagination .btn.active {
+            background: var(--primary-color);
+            color: var(--white);
+            border-color: var(--primary-color);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .search-results-header {
+                padding: 1.5rem;
+            }
+
+            .search-result-item .post-item {
+                padding: 1rem;
+            }
+
+            .search-result-item .post-meta {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .search-results-content .pagination {
+                flex-wrap: wrap;
             }
         }

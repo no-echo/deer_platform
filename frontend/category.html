@@ -160,7 +160,7 @@
         </aside>
     </div>
 
-    <script src="js/config.js"></script>
+
     <script>
         let currentCategory = null;
         let currentPage = 1;
@@ -256,27 +256,45 @@
             categoryNav.innerHTML = categoryTags;
         }
 
-        // 根据URL参数设置分类
+        // 根据URL参数设置分类或搜索
         function setCategoryFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
             // 兼容两种参数名：id 和 cat
             const categoryId = urlParams.get('id') || urlParams.get('cat');
+            const searchKeyword = urlParams.get('search');
+            
+
+            
+            if (searchKeyword) {
+                // 处理搜索参数
+                currentCategory = null;
+                document.getElementById('category-title').textContent = `搜索结果: "${escapeHtml(searchKeyword)}"`;
+                document.getElementById('category-description').textContent = '搜索相关帖子';
+                document.title = `搜索: ${searchKeyword} - 林麝养殖交流分享平台`;
+                
+                // 执行搜索
+                performSearchInCategory(searchKeyword);
+                return;
+            }
             
             if (categoryId) {
                 currentCategory = categoryId;
                 loadCategoryInfo(categoryId);
                 updateActiveNavigation(categoryId);
+                loadPosts();
+                loadHotPosts();
+                loadHotTags();
+                loadStats();
             } else {
                 // 显示所有分类的帖子
                 currentCategory = null;
                 document.getElementById('category-title').textContent = '全部帖子';
                 document.getElementById('category-description').textContent = '浏览所有分类下的精彩内容';
+                loadPosts();
+                loadHotPosts();
+                loadHotTags();
+                loadStats();
             }
-            
-            loadPosts();
-            loadHotPosts();
-            loadHotTags();
-            loadStats();
         }
 
         // 加载分类信息
@@ -306,6 +324,7 @@
 
         // 加载帖子列表
         async function loadPosts() {
+
             if (isLoading) return;
             
             isLoading = true;
@@ -545,8 +564,108 @@
         function performSearch() {
             const keyword = document.getElementById('search-input').value.trim();
             if (keyword) {
-                window.location.href = `index.html?search=${encodeURIComponent(keyword)}`;
+                // 在当前页面执行搜索
+                window.location.href = `category.html?search=${encodeURIComponent(keyword)}`;
             }
+        }
+
+        // 在分类页面执行搜索
+        async function performSearchInCategory(keyword, page = 0) {
+            try {
+                showLoading();
+                
+                const response = await postAPI.search({
+                    keyword: keyword,
+                    page: page,
+                    size: 10
+                });
+                
+                if (response.success) {
+                    displaySearchResults(response.data, keyword);
+                } else {
+                    throw new Error(response.message || '搜索失败');
+                }
+            } catch (error) {
+                console.error('搜索失败:', error);
+                alert('搜索失败: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // 显示搜索结果
+        function displaySearchResults(searchData, keyword) {
+            const postList = document.getElementById('postList');
+            const pagination = document.getElementById('pagination');
+            
+            if (!postList) return;
+            
+            postList.innerHTML = '';
+            
+            if (searchData.content && searchData.content.length > 0) {
+                // 显示搜索结果
+                searchData.content.forEach(post => {
+                    const postElement = createPostElement(post);
+                    postList.appendChild(postElement);
+                });
+                
+                // 更新分页
+                updateSearchPagination(searchData, keyword);
+            } else {
+                postList.innerHTML = '<div class="no-posts"><p>没有找到相关帖子</p></div>';
+                if (pagination) {
+                    pagination.innerHTML = '';
+                }
+            }
+        }
+
+        // 创建帖子元素
+        function createPostElement(post) {
+            const postDiv = document.createElement('div');
+            postDiv.className = 'post-item';
+            
+            const formattedTime = new Date(post.createdAt).toLocaleDateString('zh-CN');
+            
+            postDiv.innerHTML = `
+                <h3><a href="post-detail.html?id=${post.id}" class="post-title">${escapeHtml(post.title)}</a></h3>
+                <div class="post-meta">
+                    <span class="post-time">${formattedTime}</span>
+                    <span class="post-author">作者: ${escapeHtml(post.authorName || '未知')}</span>
+                    <span class="post-views">浏览: ${post.viewCount || 0}</span>
+                </div>
+                <div class="post-excerpt">${escapeHtml(post.summary || '')}</div>
+            `;
+            
+            return postDiv;
+        }
+
+        // 更新搜索分页
+        function updateSearchPagination(searchData, keyword) {
+            const pagination = document.getElementById('pagination');
+            if (!pagination) return;
+            
+            let paginationHTML = '';
+            
+            // 上一页
+            if (searchData.number > 0) {
+                paginationHTML += `<button onclick="performSearchInCategory('${escapeHtml(keyword)}', ${searchData.number - 1})" class="btn btn-outline-primary">上一页</button>`;
+            }
+            
+            // 页码
+            const startPage = Math.max(0, searchData.number - 2);
+            const endPage = Math.min(searchData.totalPages - 1, searchData.number + 2);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const isActive = i === searchData.number ? 'active' : '';
+                paginationHTML += `<button onclick="performSearchInCategory('${escapeHtml(keyword)}', ${i})" class="btn btn-outline-primary ${isActive}">${i + 1}</button>`;
+            }
+            
+            // 下一页
+            if (searchData.number < searchData.totalPages - 1) {
+                paginationHTML += `<button onclick="performSearchInCategory('${escapeHtml(keyword)}', ${searchData.number + 1})" class="btn btn-outline-primary">下一页</button>`;
+            }
+            
+            pagination.innerHTML = paginationHTML;
         }
 
         // 按标签搜索
@@ -611,9 +730,19 @@
             };
             return statusMap[status] || '未知';
         }
+
+        // 隐藏加载状态
+        function hideLoading() {
+            // 加载状态会被实际内容替换，这里不需要特殊处理
+        }
         
 
     </script>
-    <script src="js/api.js"></script>
+    
+    <!-- 引入必要的JavaScript文件 -->
+    <script src="js/config.js?v=2"></script>
+    <script src="js/error-handler.js?v=2"></script>
+    <script src="js/data-processor.js?v=2"></script>
+    <script src="js/api.js?v=2"></script>
 </body>
 </html>

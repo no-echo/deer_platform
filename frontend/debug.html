@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>调试页面</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .error { background-color: #ffebee; }
+        .success { background-color: #e8f5e8; }
+    </style>
+</head>
+<body>
+    <h1>API调试页面</h1>
+    <button onclick="testCategories()">测试分类API</button>
+    <button onclick="testPosts()">测试帖子API</button>
+    <button onclick="testJSFiles()">测试JS文件加载</button>
+    <div id="results"></div>
+    
+    <script>
+        const results = document.getElementById('results');
+        
+        function addResult(message, isError = false) {
+            const div = document.createElement('div');
+            div.className = 'result ' + (isError ? 'error' : 'success');
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            results.appendChild(div);
+        }
+        
+        async function testCategories() {
+            try {
+                addResult('开始测试分类API...');
+                const response = await fetch('http://localhost:8080/api/categories');
+                const data = await response.json();
+                addResult(`分类API成功: 获取到 ${data.data?.length || 0} 个分类`);
+                console.log('分类数据:', data);
+            } catch (error) {
+                addResult(`分类API失败: ${error.message}`, true);
+                console.error('分类API错误:', error);
+            }
+        }
+        
+        async function testPosts() {
+            try {
+                addResult('开始测试帖子API...');
+                const response = await fetch('http://localhost:8080/api/posts?categoryId=1&page=0&size=4');
+                const data = await response.json();
+                addResult(`帖子API成功: 获取到 ${data.data?.content?.length || 0} 个帖子`);
+                console.log('帖子数据:', data);
+            } catch (error) {
+                addResult(`帖子API失败: ${error.message}`, true);
+                console.error('帖子API错误:', error);
+            }
+        }
+        
+        function testJSFiles() {
+            const jsFiles = ['config.js', 'error-handler.js', 'data-processor.js', 'api.js', 'index.js'];
+            
+            jsFiles.forEach(async (file) => {
+                try {
+                    const response = await fetch(`js/${file}`);
+                    if (response.ok) {
+                        addResult(`${file} 加载成功`);
+                    } else {
+                        addResult(`${file} 加载失败: ${response.status}`, true);
+                    }
+                } catch (error) {
+                    addResult(`${file} 加载错误: ${error.message}`, true);
+                }
+            });
+        }
+        
+        // 页面加载时自动测试
+        window.addEventListener('load', () => {
+            addResult('页面加载完成，开始自动测试...');
+            testJSFiles();
+            setTimeout(testCategories, 1000);
+            setTimeout(testPosts, 2000);
+        });
+    </script>
+</body>
+</html>

@@ -4,92 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>简单测试</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .debug { background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; }
-        .error { color: red; }
-        .success { color: green; }
-    </style>
 </head>
 <body>
-    <h1>API测试页面</h1>
-    <button onclick="testPostAPI()">测试帖子API</button>
-    <button onclick="testCategoryAPI()">测试分类API</button>
-    <div id="results"></div>
+    <h1>JavaScript测试页面</h1>
+    <div id="test-output">等待JavaScript执行...</div>
     
-    <script src="js/config.js"></script>
-    <script src="js/api.js"></script>
     <script>
-        function log(message, type = 'info') {
-            const results = document.getElementById('results');
-            const div = document.createElement('div');
-            div.className = `debug ${type}`;
-            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
-            results.appendChild(div);
-            console.log(message);
-        }
+        console.log('JavaScript开始执行');
         
-        async function testPostAPI() {
-            log('开始测试帖子API...');
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM加载完成');
             
-            try {
-                // 测试参数
-                const params = {
-                    categoryId: 1,
-                    page: 0,
-                    size: 10,
-                    sortBy: 'createTime',
-                    sortOrder: 'desc'
-                };
-                
-                log(`请求参数: ${JSON.stringify(params)}`);
-                
-                // 调用API
-                const response = await postAPI.getList(params);
-                log(`API响应: ${JSON.stringify(response, null, 2)}`);
-                
-                if (response && response.success) {
-                    const posts = response.data.content || [];
-                    log(`成功获取 ${posts.length} 个帖子`, 'success');
-                    
-                    if (posts.length > 0) {
-                        log(`第一个帖子: ${JSON.stringify(posts[0], null, 2)}`);
-                    }
-                } else {
-                    log(`API调用失败: ${response ? response.message : '未知错误'}`, 'error');
-                }
-                
-            } catch (error) {
-                log(`测试失败: ${error.message}`, 'error');
-                console.error('详细错误:', error);
-            }
-        }
-        
-        async function testCategoryAPI() {
-            log('开始测试分类API...');
+            const output = document.getElementById('test-output');
+            output.innerHTML = 'JavaScript执行成功！';
+            output.style.color = 'green';
+            output.style.fontSize = '20px';
             
-            try {
-                const response = await categoryAPI.getById(1);
-                log(`分类API响应: ${JSON.stringify(response, null, 2)}`);
-                
-                if (response && response.success) {
-                    log(`成功获取分类: ${response.data.name}`, 'success');
-                } else {
-                    log(`分类API调用失败: ${response ? response.message : '未知错误'}`, 'error');
-                }
-                
-            } catch (error) {
-                log(`分类API测试失败: ${error.message}`, 'error');
-                console.error('详细错误:', error);
-            }
-        }
-        
-        // 页面加载时自动测试
-        window.addEventListener('load', function() {
-            log('页面加载完成');
-            setTimeout(() => {
-                testPostAPI();
-            }, 1000);
+            // 测试API调用
+            fetch('http://localhost:8080/api/categories')
+                .then(response => {
+                    console.log('API响应状态:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('API数据:', data);
+                    output.innerHTML += '<br>API调用成功，获取到 ' + data.length + ' 个分类';
+                })
+                .catch(error => {
+                    console.error('API调用失败:', error);
+                    output.innerHTML += '<br>API调用失败: ' + error.message;
+                    output.style.color = 'red';
+                });
         });
     </script>
 </body>

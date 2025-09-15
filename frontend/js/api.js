@@ -252,9 +252,10 @@ const postAPI = {
     },
     
     // 搜索帖子
-    search: async (keyword, page = 0, size = 10) => {
-        const params = new URLSearchParams({ keyword, page, size });
-        return await apiClient.get(`${API_ENDPOINTS.POST_SEARCH}?${params}`);
+    search: async (params) => {
+        const { keyword, page = 0, size = 10 } = params;
+        const searchParams = new URLSearchParams({ keyword, page, size });
+        return await apiClient.get(`${API_ENDPOINTS.POST_SEARCH}?${searchParams}`);
     },
     
     // 获取热门帖子
