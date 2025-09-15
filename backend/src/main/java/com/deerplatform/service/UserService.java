@@ -3,8 +3,9 @@ package com.deerplatform.service;
 import com.deerplatform.dto.RegisterRequest;
 import com.deerplatform.dto.UserDTO;
 import com.deerplatform.entity.User;
-import com.deerplatform.repository.UserRepository;
 import com.deerplatform.repository.PostRepository;
+import com.deerplatform.repository.UserRepository;
+import com.deerplatform.repository.UserFavoriteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -25,6 +26,7 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final PostRepository postRepository;
+    private final UserFavoriteRepository userFavoriteRepository;
     
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -185,8 +187,9 @@ public class UserService implements UserDetailsService {
         stats.put("draftPosts", draftPosts);
         stats.put("totalPosts", publishedPosts + draftPosts);
         
-        // 收藏统计（暂时设为0，后续实现收藏功能时更新）
-        stats.put("collections", 0);
+        // 收藏统计
+        long collections = userFavoriteRepository.countByUserId(user.getId());
+        stats.put("collections", collections);
         
         // 关注统计（暂时设为0，后续实现关注功能时更新）
         stats.put("follows", 0);

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>收藏功能测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .action-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .action-btn.active {
+            background: #28a745;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>收藏功能测试页面</h1>
+    
+    <div class="test-section">
+        <h2>模拟帖子</h2>
+        <div id="post-actions">
+            <!-- 这里会动态生成按钮 -->
+        </div>
+        <div class="status" id="status">
+            状态：未初始化
+        </div>
+        <button onclick="simulateRefresh()">模拟页面刷新</button>
+        <button onclick="resetTest()">重置测试</button>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        // 模拟帖子数据
+        let currentPost = {
+            id: 999,
+            title: "测试帖子",
+            likeCount: 5,
+            favoriteCount: 3,
+            isLiked: false,
+            isFavorited: false
+        };
+
+        // 模拟用户数据
+        let currentUser = {
+            id: 1,
+            username: "testuser"
+        };
+
+        // 更新操作按钮显示
+        function updatePostActions() {
+            const actionsElement = document.getElementById('post-actions');
+            if (actionsElement) {
+                const likeClass = currentPost.isLiked ? 'action-btn active' : 'action-btn';
+                const favoriteClass = currentPost.isFavorited ? 'action-btn active' : 'action-btn';
+                const likeText = currentPost.isLiked ? '已点赞' : '点赞';
+                const favoriteText = currentPost.isFavorited ? '已收藏' : '收藏';
+                
+                actionsElement.innerHTML = `
+                    <button class="${likeClass}" onclick="toggleLike()">
+                        <span>👍</span>
+                        <span>${likeText} (${currentPost.likeCount || 0})</span>
+                    </button>
+                    <button class="${favoriteClass}" onclick="toggleFavorite()">
+                        <span>⭐</span>
+                        <span>${favoriteText} (${currentPost.favoriteCount || 0})</span>
+                    </button>
+                `;
+            }
+            updateStatus();
+        }
+
+        // 更新状态显示
+        function updateStatus() {
+            const statusElement = document.getElementById('status');
+            statusElement.innerHTML = `
+                状态：点赞数 ${currentPost.likeCount}, 收藏数 ${currentPost.favoriteCount}<br>
+                用户状态：${currentPost.isLiked ? '已点赞' : '未点赞'}, ${currentPost.isFavorited ? '已收藏' : '未收藏'}
+            `;
+        }
+
+        // 模拟点赞功能
+        function toggleLike() {
+            currentPost.isLiked = !currentPost.isLiked;
+            currentPost.likeCount += currentPost.isLiked ? 1 : -1;
+            updatePostActions();
+            console.log('点赞状态切换:', currentPost.isLiked, '点赞数:', currentPost.likeCount);
+        }
+
+        // 模拟收藏功能
+        function toggleFavorite() {
+            currentPost.isFavorited = !currentPost.isFavorited;
+            currentPost.favoriteCount += currentPost.isFavorited ? 1 : -1;
+            updatePostActions();
+            console.log('收藏状态切换:', currentPost.isFavorited, '收藏数:', currentPost.favoriteCount);
+        }
+
+        // 模拟页面刷新（重新加载状态）
+        function simulateRefresh() {
+            // 模拟从服务器获取状态
+            const mockStatus = {
+                isLiked: currentPost.isLiked,
+                isFavorited: currentPost.isFavorited,
+                likeCount: currentPost.likeCount,
+                favoriteCount: currentPost.favoriteCount
+            };
+            
+            // 重新设置状态（模拟页面刷新后的状态加载）
+            currentPost.isLiked = mockStatus.isLiked;
+            currentPost.isFavorited = mockStatus.isFavorited;
+            currentPost.likeCount = mockStatus.likeCount || 0;
+            currentPost.favoriteCount = mockStatus.favoriteCount || 0;
+            
+            updatePostActions();
+            console.log('模拟页面刷新完成，状态保持:', mockStatus);
+        }
+
+        // 重置测试
+        function resetTest() {
+            currentPost = {
+                id: 999,
+                title: "测试帖子",
+                likeCount: 5,
+                favoriteCount: 3,
+                isLiked: false,
+                isFavorited: false
+            };
+            updatePostActions();
+            console.log('测试重置完成');
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updatePostActions();
+            console.log('测试页面初始化完成');
+        });
+    </script>
+</body>
+</html>

@@ -67,9 +67,13 @@
                     if (btn && btn.textContent && btn.textContent.indexOf('分享') !== -1) {
                         // 安全的事件绑定
                         if (btn && typeof btn.addEventListener === 'function') {
-                            btn.addEventListener('click', function() {
-                                self.showModal();
-                            });
+                            try {
+                                btn.addEventListener('click', function() {
+                                    self.showModal();
+                                });
+                            } catch (e) {
+                                console.warn('分享按钮事件绑定失败:', e);
+                            }
                         }
                         break;
                     }
@@ -79,9 +83,13 @@
                 if (self.modal && typeof self.modal.querySelector === 'function') {
                     var closeBtn = self.modal.querySelector('.close-btn');
                     if (closeBtn && typeof closeBtn.addEventListener === 'function') {
-                        closeBtn.addEventListener('click', function() {
-                            self.hideModal();
-                        });
+                        try {
+                            closeBtn.addEventListener('click', function() {
+                                self.hideModal();
+                            });
+                        } catch (e) {
+                            console.warn('关闭按钮事件绑定失败:', e);
+                        }
                     }
                     
                     var shareOptions = self.modal.querySelectorAll('.share-btn');
@@ -90,10 +98,14 @@
                             var option = shareOptions[j];
                             if (option && typeof option.addEventListener === 'function') {
                                 (function(btn) {
-                                    btn.addEventListener('click', function() {
-                                        var platform = btn.getAttribute('data-platform');
-                                        self.share(platform);
-                                    });
+                                    try {
+                                        btn.addEventListener('click', function() {
+                                            var platform = btn.getAttribute('data-platform');
+                                            self.share(platform);
+                                        });
+                                    } catch (e) {
+                                        console.warn('分享选项事件绑定失败:', e);
+                                    }
                                 })(option);
                             }
                         }
@@ -101,11 +113,15 @@
                     
                     // 点击外部关闭
                     if (typeof self.modal.addEventListener === 'function') {
-                        self.modal.addEventListener('click', function(e) {
-                            if (e.target === self.modal) {
-                                self.hideModal();
-                            }
-                        });
+                        try {
+                            self.modal.addEventListener('click', function(e) {
+                                if (e.target === self.modal) {
+                                    self.hideModal();
+                                }
+                            });
+                        } catch (e) {
+                            console.warn('模态框外部点击事件绑定失败:', e);
+                        }
                     }
                 }
             } catch (error) {
@@ -164,8 +180,13 @@
             '</div>'
         ].join('');
         
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-        this.modal = document.getElementById('shareModal');
+        // 安全检查document.body
+        if (document.body && typeof document.body.insertAdjacentHTML === 'function') {
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            this.modal = document.getElementById('shareModal');
+        } else {
+            console.warn('document.body不可用，无法创建分享模态框');
+        }
     };
     
     ShareModal.prototype.showModal = function() {

@@ -388,14 +388,12 @@ const userAPI = {
     
     // 获取用户收藏的帖子
     getCollections: async (page = 0, size = 10) => {
-        const username = localStorage.getItem('username');
-        return await apiClient.get(`/user/${username}/collections?page=${page}&size=${size}`);
+        return await apiClient.get(`/user/collections?page=${page}&size=${size}`);
     },
     
     // 获取用户统计信息
     getStats: async () => {
-        const username = localStorage.getItem('username');
-        return await apiClient.get(`/user/${username}/stats`);
+        return await apiClient.get('/user/stats');
     }
 };
 

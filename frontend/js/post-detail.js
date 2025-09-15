@@ -65,6 +65,9 @@ async function loadPostDetail(postId) {
         const postStatus = await getPostStatus(postId);
         currentPost.isLiked = postStatus.isLiked;
         currentPost.isFavorited = postStatus.isFavorited;
+        // 更新收藏数量和点赞数量
+        currentPost.likeCount = postStatus.likeCount || 0;
+        currentPost.favoriteCount = postStatus.favoriteCount || 0;
         
         // 更新操作按钮
         updatePostActions();
