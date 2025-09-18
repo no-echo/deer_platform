@@ -74,24 +74,24 @@ public class SecurityConfig {
                 .antMatchers("/uploads/**").permitAll()
                 .antMatchers("/error").permitAll()
                 
-                // 公开API接口
-                .antMatchers("/auth/login", "/auth/register").permitAll()
-                .antMatchers("/categories", "/categories/**").permitAll()
-                .antMatchers("/posts", "/posts/**").permitAll()
-                .antMatchers("/auth/send-verification-code", "/auth/register-with-email").permitAll()
-                .antMatchers("/auth/send-reset-code", "/auth/reset-password").permitAll()
+                // 公开API接口 - 添加/api前缀
+                .antMatchers("/api/auth/login", "/api/auth/register").permitAll()
+                .antMatchers("/api/categories", "/api/categories/**").permitAll()
+                .antMatchers("/api/posts", "/api/posts/**").permitAll()
+                .antMatchers("/api/auth/send-verification-code", "/api/auth/register-with-email").permitAll()
+                .antMatchers("/api/auth/send-reset-code", "/api/auth/reset-password").permitAll()
                 
                 // Swagger文档
                 .antMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 
-                // 需要认证的接口
-                .antMatchers("/auth/me", "/auth/profile").authenticated()
-                .antMatchers("/posts/create", "/posts/*/edit").authenticated()
-                .antMatchers("/comments/**").authenticated()
-                .antMatchers("/user/**").authenticated()
+                // 需要认证的接口 - 添加/api前缀
+                .antMatchers("/api/auth/me", "/api/auth/profile").authenticated()
+                .antMatchers("/api/posts/create", "/api/posts/*/edit").authenticated()
+                .antMatchers("/api/comments/**").authenticated()
+                .antMatchers("/api/user/**").authenticated()
                 
-                // 管理员接口
-                .antMatchers("/admin/**").hasRole("ADMIN")
+                // 管理员接口 - 添加/api前缀
+                .antMatchers("/api/admin/**").hasRole("ADMIN")
                 
                 // 其他所有请求都需要认证
                 .anyRequest().authenticated()
